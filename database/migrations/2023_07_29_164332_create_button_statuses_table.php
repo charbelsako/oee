@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('device_notes', function (Blueprint $table) {
+        Schema::create('button_statuses', function (Blueprint $table) {
             $table->id();
-            $table->longText('notes');
+            $table->unsignedBigInteger('device_id');
+            $table->unsignedTinyInteger('btn1');
+            $table->unsignedTinyInteger('btn2');
+            $table->unsignedTinyInteger('btn3');
+            $table->unsignedTinyInteger('btn4');
             $table->dateTime('registered_at');
             $table->string('unix_at');
             $table->timestamps();
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('device_notes');
+        Schema::dropIfExists('button_statuses');
     }
 };
