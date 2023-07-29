@@ -17,8 +17,8 @@ class DeviceController extends Controller
 {
     public function config(Request $request)
     {
-        $data['device_time'] = strtotime(Carbon::now());
-        $data['device_time_milli'] = now()->getTimestampMs();
+        $data['device_time'] = '*'.strtotime(Carbon::now()).'#';
+        $data['device_time_milli'] = '*'.now()->getTimestampMs().'#';
         return response()->json([
             'status' => true,
             'data' => $data,
