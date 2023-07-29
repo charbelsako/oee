@@ -55,14 +55,15 @@ class DeviceController extends Controller
         $device_id = 1;
         $unix_at = $request->time;
         $time = (int) $unix_at/1000;
-        $time = Carbon::createFromTimestamp($time);
+//        $time = Carbon::createFromTimestamp($time);
+        $time = Carbon::now();
 
         $notes = $request->notes;
         if ($request->has('notes') && $request->has('time') && Str::contains($notes,'T')
             && Str::contains($notes,'H') && Str::contains($notes,'V') && Str::contains($notes,'I')
             && Str::contains($notes,'A') && Str::contains($notes,'S') && Str::contains($notes,'P')) {
             $device_note = DeviceNote::query()->create([
-                'notes'=>$notes,
+                'notes'=>$notes . 'Time:' . $unix_at,
                 'registered_at'=>$time,
                 'unix_at'=>$unix_at,
             ]);
