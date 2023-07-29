@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/store', [DeviceController::class,'store'])->name('post.store');
+Route::get('/config', [DeviceController::class,'config'])->name('get.config');

@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('device_notes', function (Blueprint $table) {
+        Schema::create('countries', function (Blueprint $table) {
             $table->id();
-            $table->longText('notes');
-            $table->dateTime('registered_at');
-            $table->string('unix_at');
+            $table->unsignedBigInteger('parent_id')->default(0);
+            $table->string('name');
+            $table->string('flag')->nullable();
+            $table->string('timezone')->default("0");
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('device_notes');
+        Schema::dropIfExists('countries');
     }
 };
