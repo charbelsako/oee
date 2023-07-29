@@ -15,8 +15,11 @@ use Illuminate\Support\Str;
 
 class DeviceController extends Controller
 {
-    public function config(Request $request)
+    public function microtime(Request $request)
     {
+        return "*" . (int) (microtime(true) * 1000) . "#";
+
+
         $data['device_time'] = '*'.strtotime(Carbon::now()).'#';
         $data['device_time_milli'] = '*'.now()->getTimestampMs().'#';
         return response()->json([
