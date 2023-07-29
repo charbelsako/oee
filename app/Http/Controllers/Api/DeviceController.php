@@ -55,8 +55,8 @@ class DeviceController extends Controller
         $device_id = 1;
         $unix_at = $request->time;
         $time = (int) $unix_at/1000;
-//        $time = Carbon::createFromTimestamp($time);
-        $time = Carbon::now();
+        $time = Carbon::createFromTimestamp($time);
+//        $time = Carbon::now();
 
         $notes = $request->notes;
         if ($request->has('notes') && $request->has('time') && Str::contains($notes,'T')
