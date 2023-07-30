@@ -13,6 +13,16 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+
+        try {
+
+            $output = shell_exec('ps -eo pid,lstart,cmd | grep queue:work');
+            if (!isset($output) || !str_contains($output, "queue:work --tries=3 --queue=store_device_data,default")) {
+                $schedule->command('queue:work --tries=3 --queue=store_device_data,default');
+            }
+        }catch (\Exception $exception){
+
+        }
     }
 
     /**
