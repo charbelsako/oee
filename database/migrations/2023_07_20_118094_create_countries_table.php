@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('flag')->nullable();
             $table->string('timezone')->default("0");
-            $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('status')->default(101)
+                ->comment('101=>active,102=>inactive');
             $table->timestamps();
         });
     }

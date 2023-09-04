@@ -29,16 +29,16 @@ class DummySeeder extends Seeder
 
         // create country
         $country = Country::query()->firstOrCreate(['name' => 'Country'],
-            ['parent_id' => 0, 'flag' => '', 'timezone' => '+3', 'status' => 1]);
+            ['parent_id' => 0, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
 
         // create city
         $city = Country::query()->firstOrCreate(['name' => 'City'],
-            ['parent_id' => $country->id, 'flag' => '', 'timezone' => '+3', 'status' => 1]);
+            ['parent_id' => $country->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
 
         // create device
         $device = Device::query()->firstOrCreate(
             ['project' => 'OEE','machine' => 'OEE','process' => 'OEE'],
-            ['country_id' => $country->id, 'city_id' => $city->id, 'timezone' => $city->timezone, 'version' => '1.0', 'status' => 1]);
+            ['country_id' => $country->id, 'city_id' => $city->id, 'timezone' => $city->timezone, 'version' => '1.0', 'status' => 202]);
         // cache clear
         Artisan::call('cache:clear');
     }

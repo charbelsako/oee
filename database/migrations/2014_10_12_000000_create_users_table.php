@@ -17,9 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedTinyInteger('is_active')->default(0)->comment('0=>active,1=>inactive');
-            $table->unsignedTinyInteger('is_editable')->default(1)->comment('0=>non editable,1=>editable');
-            $table->unsignedBigInteger('parent_id')->default(0)->comment('0=>user is parent');
+            $table->unsignedTinyInteger('status')->default(102)
+                ->comment('101=>active,102=>inactive');
+            $table->unsignedTinyInteger('is_editable')->default(151)
+                ->comment('151=>editable,152=>non editable');
+            $table->unsignedBigInteger('parent_id')->default(0)
+                ->comment('0=>user is parent');
             $table->rememberToken();
             $table->timestamps();
         });

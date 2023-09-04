@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -35,13 +36,24 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::group(['prefix' => 'users', 'as' => 'users.'], function () {
-        Route::get('/', [UserController::class,'index'])->name('index')->middleware('permission:user_index');
-        Route::get('/create', [UserController::class,'create'])->name('create')->middleware('permission:user_create');
-        Route::post('/create', [UserController::class,'store'])->name('store')->middleware('permission:user_create');
-        Route::get('/edit/{id}', [UserController::class,'edit'])->name('edit')->middleware('permission:user_edit');
-        Route::post('/update/{id}', [UserController::class,'update'])->name('update')->middleware('permission:user_edit');
-        Route::post('/delete/{id}', [UserController::class,'delete'])->name('delete')->middleware('permission:user_delete');
+        Route::get('/', [UserController::class,'index'])->name('index')/*->middleware('permission:user_index')*/;
+        Route::get('/create', [UserController::class,'create'])->name('create')/*->middleware('permission:user_create')*/;
+        Route::post('/store', [UserController::class,'store'])->name('store')/*->middleware('permission:user_create')*/;
+        Route::get('/edit/{id}', [UserController::class,'edit'])->name('edit')/*->middleware('permission:user_edit')*/;
+        Route::post('/update/{id}', [UserController::class,'update'])->name('update')/*->middleware('permission:user_edit')*/;
+        Route::post('/delete/{id}', [UserController::class,'delete'])->name('delete')/*->middleware('permission:user_delete')*/;
 
-        Route::post('/{id}/change-status', [UserController::class,'changeStatus'])->name('status')->middleware('permission:user_status');
+        Route::post('/{id}/change-status', [UserController::class,'changeStatus'])->name('status')/*->middleware('permission:user_status')*/;
+    });
+
+    Route::group(['prefix' => 'devices', 'as' => 'devices.'], function () {
+        Route::get('/', [DeviceController::class,'index'])->name('index')/*->middleware('permission:device_index')*/;
+        Route::get('/create', [DeviceController::class,'create'])->name('create')/*->middleware('permission:device_create')*/;
+        Route::post('/store', [DeviceController::class,'store'])->name('store')/*->middleware('permission:device_create')*/;
+        Route::get('/edit/{id}', [DeviceController::class,'edit'])->name('edit')/*->middleware('permission:device_edit')*/;
+        Route::post('/update/{id}', [DeviceController::class,'update'])->name('update')/*->middleware('permission:device_edit')*/;
+        Route::post('/delete/{id}', [DeviceController::class,'delete'])->name('delete')/*->middleware('permission:device_delete')*/;
+
+        Route::post('/{id}/change-status', [DeviceController::class,'changeStatus'])->name('status')/*->middleware('permission:device_status')*/;
     });
 });

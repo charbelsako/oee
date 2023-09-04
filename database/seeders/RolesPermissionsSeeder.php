@@ -92,6 +92,37 @@ class RolesPermissionsSeeder extends Seeder
                 'group' => 'User',
                 'roles' => ['super', 'admin', 'editor', 'viewer']
             ],
+            // Device
+            [
+                'name' => 'device_index',
+                'label' => 'View all devices',
+                'group' => 'Device',
+                'roles' => ['super', 'admin']
+            ],
+            [
+                'name' => 'device_create',
+                'label' => 'Create new device',
+                'group' => 'Device',
+                'roles' => ['super', 'admin']
+            ],
+            [
+                'name' => 'device_edit',
+                'label' => 'Edit device',
+                'group' => 'Device',
+                'roles' => ['super', 'admin']
+            ],
+            [
+                'name' => 'device_delete',
+                'label' => 'Delete device',
+                'group' => 'Device',
+                'roles' => ['super', 'admin']
+            ],
+            [
+                'name' => 'device_status',
+                'label' => 'Change status',
+                'group' => 'Device',
+                'roles' => ['super', 'admin', 'editor', 'viewer']
+            ],
 
         ];
 
@@ -160,31 +191,31 @@ class RolesPermissionsSeeder extends Seeder
                 'name' => 'Super Admin',
                 'email' => 'super@oee.com',
                 'password' => Hash::make('super@000'),
-                'is_active' => 1,
-                'is_editable' => 0,
+                'status' => 101,
+                'is_editable' => 152,
             ],
             [
                 'name' => 'Admin',
                 'email' => 'admin@oee.com',
                 'password' => Hash::make('admin@1234'),
-                'is_active' => 1,
+                'is_active' => 101,
             ],
             [
                 'name' => 'Editor',
                 'email' => 'editor@oee.com',
                 'password' => Hash::make('editor@99'),
-                'is_active' => 1,
+                'is_active' => 101,
             ],
             [
                 'name' => 'Viewer',
                 'email' => 'viewer@oee.com',
                 'password' => Hash::make('viewer@88'),
-                'is_active' => 1,
+                'is_active' => 101,
             ],
         ];
 
         foreach ($users_array as $u) {
-            User::query()->updateOrCreate($u);
+            User::query()->updateOrCreate(['email'=>$u['email']],$u);
         }
         $users = User::query()->get();
         $super_ids = [1];
