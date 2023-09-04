@@ -198,19 +198,19 @@ class RolesPermissionsSeeder extends Seeder
                 'name' => 'Admin',
                 'email' => 'admin@oee.com',
                 'password' => Hash::make('admin@1234'),
-                'is_active' => 101,
+                'status' => 101,
             ],
             [
                 'name' => 'Editor',
                 'email' => 'editor@oee.com',
                 'password' => Hash::make('editor@99'),
-                'is_active' => 101,
+                'status' => 101,
             ],
             [
                 'name' => 'Viewer',
                 'email' => 'viewer@oee.com',
                 'password' => Hash::make('viewer@88'),
-                'is_active' => 101,
+                'status' => 101,
             ],
         ];
 
