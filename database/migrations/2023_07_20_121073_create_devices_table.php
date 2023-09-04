@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('machine');
             $table->string('process');
             $table->string('version');
-            $table->tinyInteger('status')->default(202)
+            $table->integer('status')->default(202)
                 ->comment('201=>running,202=>pause,203=>pause for checked,204=>pause for error');
             $table->timestamps();
         });
