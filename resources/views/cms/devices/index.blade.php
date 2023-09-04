@@ -129,6 +129,12 @@
             getDevices(page)
         });
 
+        $(document).on('change', '#country_id', function (event) {
+            event.preventDefault();
+            let country_id = $(this).val();
+            getCityByCountryId(country_id)
+        });
+
         function getDevices(page = 1) {
             $.ajax({
                 url: "{{ route('devices.index') }}",
@@ -143,6 +149,33 @@
                 },
                 success: function (res) {
                     $('#devices_table').empty().append(res.data.view_render);
+                },
+                error: function (xhr, status, message) {
+                    swal("Cancelled", "Something went wrong!", "error");
+                }
+            });
+        }
+
+        function getCityByCountryId(country_id) {
+            $.ajax({
+                url: "{{ route('devices.country.city') }}",
+                data: {
+                    'country_id': country_id,
+                },
+                beforeSend: function (xhr) {
+                    Oee.blockUI({target: '#devices_table'});
+                },
+                complete: function (xhr, status) {
+                    Oee.unblockUI('#devices_table');
+                },
+                success: function (res) {
+                    let cities = $('#city_id');
+                    cities.empty();
+                    let data = res.data;
+                    cities.append('<option>please choose city</option>');
+                    $.each(data,function(i){
+                        cities.append('<option value="'+data[i]['id']+'">'+data[i]['name']+'</option>');
+                    });
                 },
                 error: function (xhr, status, message) {
                     swal("Cancelled", "Something went wrong!", "error");

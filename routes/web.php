@@ -55,5 +55,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/delete/{id}', [DeviceController::class,'delete'])->name('delete')/*->middleware('permission:device_delete')*/;
 
         Route::post('/{id}/change-status', [DeviceController::class,'changeStatus'])->name('status')/*->middleware('permission:device_status')*/;
+        Route::get('/country/city', [DeviceController::class,'getCityByCountryId'])->name('country.city')/*->middleware('permission:device_status')*/;
     });
 });
