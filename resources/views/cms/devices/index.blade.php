@@ -7,7 +7,7 @@
     <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
         <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
             <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">Users
+                <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">Devices
                     List</h1>
                 <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                     <li class="breadcrumb-item text-muted">
@@ -16,11 +16,11 @@
                     <li class="breadcrumb-item">
                         <span class="bullet bg-gray-400 w-5px h-2px"></span>
                     </li>
-                    <li class="breadcrumb-item text-muted">User Management</li>
+                    <li class="breadcrumb-item text-muted">Device Management</li>
                     <li class="breadcrumb-item">
                         <span class="bullet bg-gray-400 w-5px h-2px"></span>
                     </li>
-                    <li class="breadcrumb-item text-muted">Users</li>
+                    <li class="breadcrumb-item text-muted">Devices</li>
                 </ul>
             </div>
         </div>
@@ -43,12 +43,12 @@
                                     fill="currentColor"/>
                             </svg>
                         </span>
-                        <input type="text" data-kt-user-table-filter="search"
-                               class="form-control form-control-solid w-250px ps-14" placeholder="Search user"/>
+                        <input type="text" data-kt-device-table-filter="search"
+                               class="form-control form-control-solid w-250px ps-14" placeholder="Search device"/>
                     </div>
                 </div>
                 <div class="card-toolbar">
-                    <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+                    <div class="d-flex justify-content-end" data-kt-device-table-toolbar="base">
                         <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click"
                                 data-kt-menu-placement="bottom-end">
                             <span class="svg-icon svg-icon-2">
@@ -66,12 +66,12 @@
                                 <div class="fs-5 text-dark fw-bold">Filter Options</div>
                             </div>
                             <div class="separator border-gray-200"></div>
-                            <div class="px-7 py-5" data-kt-user-table-filter="form">
+                            <div class="px-7 py-5" data-kt-device-table-filter="form">
                                 <div class="mb-10">
                                     <label class="form-label fs-6 fw-semibold">Status:</label>
                                     <select class="form-select form-select-solid fw-bold" data-kt-select2="true"
                                             data-placeholder="Select option" data-allow-clear="true"
-                                            data-kt-user-table-filter="role" data-hide-search="true">
+                                            data-kt-device-table-filter="role" data-hide-search="true">
                                         <option></option>
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
@@ -80,16 +80,16 @@
                                 <div class="d-flex justify-content-end">
                                     <button type="reset"
                                             class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6"
-                                            data-kt-menu-dismiss="true" data-kt-user-table-filter="reset">Reset
+                                            data-kt-menu-dismiss="true" data-kt-device-table-filter="reset">Reset
                                     </button>
                                     <button type="submit" class="btn btn-primary fw-semibold px-6"
-                                            data-kt-menu-dismiss="true" data-kt-user-table-filter="filter">Apply
+                                            data-kt-menu-dismiss="true" data-kt-device-table-filter="filter">Apply
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#kt_modal_add_user">
+                                data-bs-target="#kt_modal_add_device">
                             <span class="svg-icon svg-icon-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                      xmlns="http://www.w3.org/2000/svg">
@@ -97,22 +97,22 @@
                                           transform="rotate(-90 11.364 20.364)" fill="currentColor"/>
                                     <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="currentColor"/>
                                 </svg>
-                            </span>Add User
+                            </span>Add Device
                         </button>
                     </div>
                     <div class="d-flex justify-content-end align-items-center d-none"
-                         data-kt-user-table-toolbar="selected">
+                         data-kt-device-table-toolbar="selected">
                         <div class="fw-bold me-5">
-                            <span class="me-2" data-kt-user-table-select="selected_count"></span>Selected
+                            <span class="me-2" data-kt-device-table-select="selected_count"></span>Selected
                         </div>
-                        <button type="button" class="btn btn-danger" data-kt-user-table-select="delete_selected">Delete
+                        <button type="button" class="btn btn-danger" data-kt-device-table-select="delete_selected">Delete
                             Selected
                         </button>
                     </div>
-                    @include('cms.users.partials._modal')
+                    @include('cms.devices.partials._modal')
                 </div>
             </div>
-            <div class="card-body py-4" id="users_table"></div>
+            <div class="card-body py-4" id="devices_table"></div>
         </div>
     </div>
 @endsection
@@ -120,29 +120,29 @@
 @section('js')
     <script>
         $(document).ready(function () {
-            getUsers();
+            getDevices();
         });
 
         $(document).on('click', '.pagination a', function (event) {
             event.preventDefault();
             let page = $(this).attr('href').split('page=')[1];
-            getUsers(page)
+            getDevices(page)
         });
 
-        function getUsers(page = 1) {
+        function getDevices(page = 1) {
             $.ajax({
-                url: "{{ route('users.index') }}",
+                url: "{{ route('devices.index') }}",
                 data: {
                     'page': page,
                 },
                 beforeSend: function (xhr) {
-                    Oee.blockUI({target: '#users_table'});
+                    Oee.blockUI({target: '#devices_table'});
                 },
                 complete: function (xhr, status) {
-                    Oee.unblockUI('#users_table');
+                    Oee.unblockUI('#devices_table');
                 },
                 success: function (res) {
-                    $('#users_table').empty().append(res.data.view_render);
+                    $('#devices_table').empty().append(res.data.view_render);
                 },
                 error: function (xhr, status, message) {
                     swal("Cancelled", "Something went wrong!", "error");
@@ -150,7 +150,7 @@
             });
         }
 
-        $(document).on('click', '.delete_area', function (e) {
+        $(document).on('click', '.delete_device', function (e) {
             e.preventDefault();
             let request_url = $(this).data('action');
             swal({
@@ -172,14 +172,14 @@
                         contentType: false,
                         dataType: "json",
                         beforeSend: function (xhr) {
-                            Oee.blockUI({target: '#area_table'});
+                            Oee.blockUI({target: '#device_table'});
                         },
                         complete: function (xhr, status) {
-                            Oee.unblockUI('#area_table');
+                            Oee.unblockUI('#device_table');
                         },
                         success: function (res) {
                             if (res.success) {
-                                getAreas()
+                                getDevices()
                                 swal("Deleted!", res.message, "success");
                             } else {
                                 swal("Error", res.message, "error");
@@ -195,28 +195,28 @@
             });
         });
 
-        $(document).on('submit', '#kt_modal_add_user_form', function (event) {
+        $(document).on('submit', '#kt_modal_add_device_form', function (event) {
             event.preventDefault();
             var form = $(this)[0];
             var form_data = new FormData(form);
             $.ajax({
-                url: "{{ route('users.store') }}",
+                url: "{{ route('devices.store') }}",
                 method: 'POST',
                 data: form_data,
                 processData: false,
                 contentType: false,
                 dataType: "json",
                 beforeSend: function (xhr) {
-                    $('#new_user_btn').attr('disabled',true)
+                    $('#new_device_btn').attr('disabled',true)
                 },
                 complete: function (xhr, status) {
-                    $('#new_user_btn').attr('disabled',false)
+                    $('#new_device_btn').attr('disabled',false)
                 },
                 success: function (res) {
                     if (res.success) {
-                        getUsers()
+                        getDevices()
                         swal("Save!", res.message, "success");
-                        $('#kt_modal_add_user_form').modal('hide');
+                        $('#kt_modal_add_device_form').modal('hide');
                     } else {
                         swal("Error", res.message, "error");
                     }

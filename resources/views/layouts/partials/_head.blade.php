@@ -9,6 +9,7 @@
     <meta property="og:title" content="OEE" />
     <meta property="og:url" content="https://oee.com" />
     <meta property="og:site_name" content="OEE" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="canonical" href="https://oee.com" />
     <link rel="shortcut icon" href="" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
@@ -16,5 +17,8 @@
     <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/plugins/toast/jquery.toast.css')}}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.2/dist/sweetalert2.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.2/dist/sweetalert2.css" rel="stylesheet">
     @yield('css')
 </head>

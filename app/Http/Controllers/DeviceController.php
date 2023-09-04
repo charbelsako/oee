@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Models\Device;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class DeviceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,12 +17,12 @@ class UserController extends Controller
 //        check_user_has_not_permission('role_index');
         if (\request()->ajax()) {
             $per_page = $request->get('per_page', 10);
-            $items = User::query()->with('roles')->orderBy('id')->paginate($per_page);
+            $items = Device::query()->with(['country','city'])->orderBy('id')->paginate($per_page);
 
-            $data['view_render'] = view('cms.users.partials._table', compact('items'))->render();
+            $data['view_render'] = view('cms.devices.partials._table', compact('items'))->render();
             return response(['status' => true, 'data' => $data], 200);
         }
-        return view("cms.users.index");
+        return view("cms.devices.index");
     }
 
     /**
