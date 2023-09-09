@@ -46,7 +46,7 @@ class DeviceController extends Controller
         $device = Device::query()->create($data);
         if ($device) {
             $temp = DeviceTemp::find($request->device_temp_id);
-            $temp->update(['device_id'=>$device->id]);
+            $temp->update(['device_id'=>$device->id,'status'=>Constants::DEVICETEMPSTATUS['added']]);
         }
         $success = (bool)$device;
         $message = $device?'device create successfully':'device saved unsuccessfully';
