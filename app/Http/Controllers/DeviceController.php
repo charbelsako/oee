@@ -69,6 +69,18 @@ class DeviceController extends Controller
     }
 
     /**
+     * get all temp device available
+     */
+    public function getDeviceTempAvailable(Request $request)
+    {
+        $response['success'] = true;
+        $response['message'] = 'get data successfully';
+        $response['data'] = DeviceTemp::query()->where('status',Constants::DEVICETEMPSTATUS['pending'])
+            ->whereNull('device_id')->get();
+        return response()->json($response);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function edit($id)
