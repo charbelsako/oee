@@ -284,6 +284,30 @@
             });
         }
 
+        function getDeviceTempAvailable() {
+            $.ajax({
+                url: "{{ route('devices.device.temp') }}",
+                beforeSend: function (xhr) {
+                    Oee.blockUI({target: '#devices_table'});
+                },
+                complete: function (xhr, status) {
+                    Oee.unblockUI('#devices_table');
+                },
+                success: function (res) {
+                    let device_temp = $('#device_temp_id');
+                    device_temp.empty();
+                    let data = res.data;
+                    device_temp.append('<option>please choose device temp</option>');
+                    $.each(data,function(i){
+                        device_temp.append('<option value="'+data[i]['id']+'">'+data[i]['uuid']+'</option>');
+                    });
+                },
+                error: function (xhr, status, message) {
+                    swal("Cancelled", "Something went wrong!", "error");
+                }
+            });
+        }
+
         function getDeviceById(request_url) {
             $.ajax({
                 url: request_url,

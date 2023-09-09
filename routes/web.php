@@ -57,5 +57,6 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::post('/{id}/change-status', [DeviceController::class,'changeStatus'])->name('status')/*->middleware('permission:device_status')*/;
         Route::get('/country/city', [DeviceController::class,'getCityByCountryId'])->name('country.city')/*->middleware('permission:device_status')*/;
+        Route::get('/temp', [DeviceController::class,'getDeviceTempAvailable'])->name('temp')/*->middleware('permission:device_status')*/;
     });
 });
