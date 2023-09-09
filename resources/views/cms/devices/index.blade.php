@@ -198,6 +198,10 @@
                 .find("input[type=checkbox], input[type=radio]").prop("checked", "").end();
         })
 
+        $(document).on('shown.bs.modal', '#kt_modal_add_device', function (e) {
+            getDeviceTempAvailable()
+        })
+
         $(document).on('submit', '#kt_modal_add_device_form', function (event) {
             event.preventDefault();
             let request_url = $(this).data('action');
@@ -215,6 +219,7 @@
                 },
                 complete: function (xhr, status) {
                     $('#new_device_btn').attr('disabled',false)
+                    getDeviceTempAvailable()
                 },
                 success: function (res) {
                     if (res.success) {
