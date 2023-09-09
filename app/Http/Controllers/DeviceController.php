@@ -44,6 +44,10 @@ class DeviceController extends Controller
         $data['uuid'] = generate_new_device_uuid_code('PF','TM');
 
         $device = Device::query()->create($data);
+        if ($device) {
+            $temp = DeviceTemp::find($request->device_temp_id);
+            $temp->update(['device_id'=>$device->id]);
+        }
         $success = (bool)$device;
         $message = $device?'device create successfully':'device saved unsuccessfully';
         $response['success'] = $success;
