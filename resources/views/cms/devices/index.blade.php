@@ -121,6 +121,10 @@
     <script>
         $(document).ready(function () {
             getDevices();
+            let country_id = $('#country_id')
+            if (country_id.val() != null){
+                getCityByCountryId(country_id);
+            }
         });
 
         $(document).on('click', '.pagination a', function (event) {
@@ -135,53 +139,12 @@
             getCityByCountryId(country_id)
         });
 
-        function getDevices(page = 1) {
-            $.ajax({
-                url: "{{ route('devices.index') }}",
-                data: {
-                    'page': page,
-                },
-                beforeSend: function (xhr) {
-                    Oee.blockUI({target: '#devices_table'});
-                },
-                complete: function (xhr, status) {
-                    Oee.unblockUI('#devices_table');
-                },
-                success: function (res) {
-                    $('#devices_table').empty().append(res.data.view_render);
-                },
-                error: function (xhr, status, message) {
-                    swal("Cancelled", "Something went wrong!", "error");
-                }
-            });
-        }
-
-        function getCityByCountryId(country_id) {
-            $.ajax({
-                url: "{{ route('devices.country.city') }}",
-                data: {
-                    'country_id': country_id,
-                },
-                beforeSend: function (xhr) {
-                    Oee.blockUI({target: '#devices_table'});
-                },
-                complete: function (xhr, status) {
-                    Oee.unblockUI('#devices_table');
-                },
-                success: function (res) {
-                    let cities = $('#city_id');
-                    cities.empty();
-                    let data = res.data;
-                    cities.append('<option>please choose city</option>');
-                    $.each(data,function(i){
-                        cities.append('<option value="'+data[i]['id']+'">'+data[i]['name']+'</option>');
-                    });
-                },
-                error: function (xhr, status, message) {
-                    swal("Cancelled", "Something went wrong!", "error");
-                }
-            });
-        }
+        $(document).on('click', '.edit_device', function (e) {
+            e.preventDefault();
+            let request_url = $(this).data('action');
+            $('#device_temp_div').hide();
+            getDeviceById(request_url);
+        });
 
         $(document).on('click', '.delete_device', function (e) {
             e.preventDefault();
@@ -196,8 +159,8 @@
                 cancelButtonText: "No, cancel plx!",
                 closeOnConfirm: true,
                 closeOnCancel: false
-            }, function (isConfirm) {
-                if (isConfirm) {
+            }).then((willDelete) => {
+                if (willDelete){
                     $.ajax({
                         url: request_url,
                         method: 'POST',
@@ -228,12 +191,20 @@
             });
         });
 
+        $(document).on('hidden.bs.modal', '#kt_modal_add_device', function (e) {
+            $(this)
+                .find("input,textarea").val('').end()
+                .find("select").each(function() {this.selectedIndex = 0;}).end()
+                .find("input[type=checkbox], input[type=radio]").prop("checked", "").end();
+        })
+
         $(document).on('submit', '#kt_modal_add_device_form', function (event) {
             event.preventDefault();
+            let request_url = $(this).data('action');
             var form = $(this)[0];
             var form_data = new FormData(form);
             $.ajax({
-                url: "{{ route('devices.store') }}",
+                url: request_url,
                 method: 'POST',
                 data: form_data,
                 processData: false,
@@ -249,7 +220,8 @@
                     if (res.success) {
                         getDevices()
                         swal("Save!", res.message, "success");
-                        $('#kt_modal_add_device_form').modal('hide');
+                        $('#kt_modal_add_device').modal('hide');
+                        $('#device_temp_div').show();
                     } else {
                         swal("Error", res.message, "error");
                     }
@@ -259,5 +231,83 @@
                 }
             });
         });
+
+        function getDevices(page = 1) {
+            $.ajax({
+                url: "{{ route('devices.index') }}",
+                data: {
+                    'page': page,
+                },
+                beforeSend: function (xhr) {
+                    Oee.blockUI({target: '#devices_table'});
+                },
+                complete: function (xhr, status) {
+                    Oee.unblockUI('#devices_table');
+                },
+                success: function (res) {
+                    $('#devices_table').empty().append(res.data.view_render);
+                },
+                error: function (xhr, status, message) {
+                    swal("Cancelled", "Something went wrong!", "error");
+                }
+            });
+        }
+
+        function getCityByCountryId(country_id,city_id = null) {
+            $.ajax({
+                url: "{{ route('devices.country.city') }}",
+                data: {
+                    'country_id': country_id,
+                },
+                beforeSend: function (xhr) {
+                    Oee.blockUI({target: '#devices_table'});
+                },
+                complete: function (xhr, status) {
+                    Oee.unblockUI('#devices_table');
+                },
+                success: function (res) {
+                    let cities = $('#city_id');
+                    cities.empty();
+                    let data = res.data;
+                    cities.append('<option>please choose city</option>');
+                    $.each(data,function(i){
+                        let selected_item = '';
+                        if (city_id == data[i]['id']){
+                            selected_item = 'selected';
+                        }
+                        cities.append('<option '+selected_item+' value="'+data[i]['id']+'">'+data[i]['name']+'</option>');
+                    });
+                },
+                error: function (xhr, status, message) {
+                    swal("Cancelled", "Something went wrong!", "error");
+                }
+            });
+        }
+
+        function getDeviceById(request_url) {
+            $.ajax({
+                url: request_url,
+                beforeSend: function (xhr) {
+                    Oee.blockUI({target: '#devices_table'});
+                },
+                complete: function (xhr, status) {
+                    Oee.unblockUI('#devices_table');
+                },
+                success: function (res) {
+                    $('#kt_modal_add_device_form').attr('data-action',"{{ route('devices.update') }}");
+                    $('#device_id').val(res.data.id);
+                    $('#project').val(res.data.project);
+                    $('#machine').val(res.data.machine);
+                    $('#process').val(res.data.process);
+                    $('#version').val(res.data.version);
+                    $('#country_id').val(res.data.country_id);
+                    getCityByCountryId(res.data.country_id,res.data.city_id);
+                    $('#kt_modal_add_device').modal('show');
+                },
+                error: function (xhr, status, message) {
+                    swal("Cancelled", "Something went wrong!", "error");
+                }
+            });
+        }
     </script>
 @endsection

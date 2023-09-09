@@ -51,7 +51,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/create', [DeviceController::class,'create'])->name('create')/*->middleware('permission:device_create')*/;
         Route::post('/store', [DeviceController::class,'store'])->name('store')/*->middleware('permission:device_create')*/;
         Route::get('/edit/{id}', [DeviceController::class,'edit'])->name('edit')/*->middleware('permission:device_edit')*/;
-        Route::post('/update/{id}', [DeviceController::class,'update'])->name('update')/*->middleware('permission:device_edit')*/;
+        Route::get('/show/{id}', [DeviceController::class,'show'])->name('show')/*->middleware('permission:device_show')*/;
+        Route::post('/update', [DeviceController::class,'update'])->name('update')/*->middleware('permission:device_edit')*/;
         Route::post('/delete/{id}', [DeviceController::class,'delete'])->name('delete')/*->middleware('permission:device_delete')*/;
 
         Route::post('/{id}/change-status', [DeviceController::class,'changeStatus'])->name('status')/*->middleware('permission:device_status')*/;

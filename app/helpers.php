@@ -24,3 +24,14 @@ if (!function_exists("check_user_has_not_multiple_permissions")) {
 //        }
     }
 }
+if (!function_exists("generate_new_device_uuid_code")) {
+    function generate_new_device_uuid_code($first,$second) {
+        $number = random_int(0000,9999);
+        $uuid = $first . '-' . $second . $number;
+        $check_uuid = \App\Models\Device::where('uuid',$uuid)->count();
+        if ($check_uuid) {
+            generate_new_device_uuid_code($first,$second);
+        }
+        return $uuid;
+    }
+}

@@ -37,6 +37,16 @@ class Constants
         204    => ['name'=>'pause_for_error','label'=>'Pause for error'],
     ];
 
+    // device temp status
+    const DEVICETEMPSTATUS = [
+        'pending' => 251,
+        'added'   => 252,
+    ];
+    const DEVICETEMPSTATUSNAME = [
+        251 => ['name' => 'pending', 'label' => 'Pending'],
+        252 => ['name' => 'added', 'label' => 'Added'],
+    ];
+
 
     public static function getIdByName($key)
     {
@@ -58,8 +68,11 @@ class Constants
             return self::EDITABLESTATUS;
         }elseif ($type=='device') {
             return self::DEVICESTATUS;
+        }elseif ($type=='device_temp') {
+            return self::DEVICETEMPSTATUS;
         }else{
-            return array_merge(self::STATUS,self::EDITABLESTATUS,self::DEVICESTATUS);
+            return self::STATUS + self::EDITABLESTATUS + self::DEVICESTATUS + self::DEVICETEMPSTATUS;
+            return array_merge(self::STATUS,self::EDITABLESTATUS,self::DEVICESTATUS,self::DEVICETEMPSTATUS);
         }
     }
 
@@ -71,8 +84,11 @@ class Constants
             return self::EDITABLESTATUSNAME;
         }elseif ($type=='device') {
             return self::DEVICESTATUSNAME;
+        }elseif ($type=='device_temp') {
+            return self::DEVICETEMPSTATUSNAME;
         }else{
-            return array_merge(self::STATUSNAME,self::EDITABLESTATUSNAME,self::DEVICESTATUSNAME);
+            return self::STATUSNAME + self::EDITABLESTATUSNAME + self::DEVICESTATUSNAME + self::DEVICETEMPSTATUSNAME;
+            return array_merge(self::STATUSNAME,self::EDITABLESTATUSNAME,self::DEVICESTATUSNAME,self::DEVICETEMPSTATUSNAME);
         }
     }
 }

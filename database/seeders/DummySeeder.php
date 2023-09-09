@@ -28,17 +28,29 @@ class DummySeeder extends Seeder
 //         \DB::statement("SET FOREIGN_KEY_CHECKS = 1;");
 
         // create country
-        $country = Country::query()->firstOrCreate(['name' => 'Country'],
+        $country1 = Country::query()->firstOrCreate(['name' => 'Country1'],
+            ['parent_id' => 0, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
+        $country2 = Country::query()->firstOrCreate(['name' => 'Country2'],
             ['parent_id' => 0, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
 
         // create city
-        $city = Country::query()->firstOrCreate(['name' => 'City'],
-            ['parent_id' => $country->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
+        $city = Country::query()->firstOrCreate(['name' => 'City1'],
+            ['parent_id' => $country1->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
+        Country::query()->firstOrCreate(['name' => 'City2'],
+            ['parent_id' => $country1->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
+        Country::query()->firstOrCreate(['name' => 'City3'],
+            ['parent_id' => $country2->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
+        Country::query()->firstOrCreate(['name' => 'City4'],
+            ['parent_id' => $country2->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
+        Country::query()->firstOrCreate(['name' => 'City5'],
+            ['parent_id' => $country2->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
+        Country::query()->firstOrCreate(['name' => 'City6'],
+            ['parent_id' => $country2->id, 'flag' => '', 'timezone' => '+3', 'status' => 101]);
 
         // create device
         $device = Device::query()->firstOrCreate(
             ['project' => 'OEE','machine' => 'OEE','process' => 'OEE'],
-            ['country_id' => $country->id, 'city_id' => $city->id, 'timezone' => $city->timezone, 'version' => '1.0', 'status' => 202]);
+            ['uuid' => 'TE-ST1234', 'country_id' => $country1->id, 'city_id' => $city->id, 'timezone' => $city->timezone, 'version' => '1.0', 'status' => 202]);
         // cache clear
         Artisan::call('cache:clear');
     }
