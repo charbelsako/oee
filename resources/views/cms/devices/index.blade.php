@@ -291,7 +291,7 @@
 
         function getDeviceTempAvailable() {
             $.ajax({
-                url: "{{ route('devices.device.temp') }}",
+                url: "{{ route('devices.temp') }}",
                 beforeSend: function (xhr) {
                     Oee.blockUI({target: '#devices_table'});
                 },
