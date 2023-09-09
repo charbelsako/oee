@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid');
             $table->unsignedBigInteger('country_id');
             $table->unsignedBigInteger('city_id');
             $table->string('timezone');

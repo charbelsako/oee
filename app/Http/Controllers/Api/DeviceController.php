@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\Constants;
 use App\Http\Controllers\Controller;
 use App\Jobs\StoreDeviceData;
 use App\Models\AirFlow;
 use App\Models\ButtonStatus;
 use App\Models\DeviceNote;
+use App\Models\DeviceTemp;
 use App\Models\Humidity;
 use App\Models\Temperature;
 use Carbon\Carbon;
@@ -29,6 +31,35 @@ class DeviceController extends Controller
             'data' => $data,
             'message' => 'device config'
         ]);
+    }
+
+    public function storeDevice(Request $request)
+    {
+        $status = false;
+        $uuid = null;
+        if ($request->filled('device_uuid')) {
+            $device_uuid = explode('-',$request->device_uuid);
+            $first = @$device_uuid[0];
+            $second = @$device_uuid[1];
+            if ($first && $second) {
+                $uuid = generate_new_device_uuid_code($first,$second);
+                $status = true;
+            }
+        }
+        if ($status && $uuid) {
+            $temp = DeviceTemp::query()->create(['uuid'=>$uuid]);
+            return response()->json([
+                'status' => (bool)$temp,
+                'data' => @$temp->uuid,
+                'message' => 'Added Successfully!!'
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'data' => [],
+                'message' => 'Added Unsuccessfully!!'
+            ]);
+        }
     }
 
     public function store(Request $request)
@@ -76,9 +107,9 @@ class DeviceController extends Controller
 
         } else {
             return response()->json([
-                'status' => false,
-                'data' => [],
-                'message' => 'Added Unsuccessfully!!'
+                    'status' => false,
+                    'data' => [],
+                    'message' => 'Added Unsuccessfully!!'
             ]);
         }
     }
