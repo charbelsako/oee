@@ -47,7 +47,7 @@ class DeviceController extends Controller
             }
         }
         if ($status && $uuid) {
-            $temp = DeviceTemp::query()->create(['uuid'=>$uuid]);
+            $temp = DeviceTemp::query()->create(['uuid'=>$uuid,'prefix'=>$request->device_uuid]);
             return response()->json([
                 'status' => (bool)$temp,
                 'data' => @$temp->uuid,
