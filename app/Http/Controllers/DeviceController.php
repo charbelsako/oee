@@ -42,7 +42,7 @@ class DeviceController extends Controller
         $data = $request->only(['project','machine','process','version','country_id','city_id']);
         $temp = DeviceTemp::find($request->device_temp_id);
         if ($temp) {
-            $device_uuid = explode('-',$temp->device_uuid);
+            $device_uuid = explode('-',$temp->prefix);
             $first = @$device_uuid[0];
             $second = @$device_uuid[1];
             if ($first && $second) {
