@@ -46,7 +46,7 @@ class DeviceController extends Controller
                     'message' => 'device not registered!'
                 ]);
             }
-            if ($temp->uuid) {
+            if ($temp->uuid && $temp->status == Constants::getIdByName('added')) {
                 return response()->json([
                     'status'  => true,
                     'data'    => $temp->uuid,
@@ -58,7 +58,7 @@ class DeviceController extends Controller
             $second = @$device_uuid[1];
             if ($first && $second) {
                 $uuid = generate_new_device_uuid_code($first,$second);
-                $temp->update(['uuid'=>$uuid]);
+                $temp->update(['uuid'=>$uuid,]);
                 return response()->json([
                     'status' => (bool)$temp,
                     'data' => $temp->uuid??[],
