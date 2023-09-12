@@ -304,7 +304,7 @@
                     let data = res.data;
                     device_temp.append('<option>please choose device temp</option>');
                     $.each(data,function(i){
-                        device_temp.append('<option value="'+data[i]['id']+'">'+data[i]['uuid']+'</option>');
+                        device_temp.append('<option value="'+data[i]['id']+'">'+data[i]['mac_address']+' - '+data[i]['prefix']+'</option>');
                     });
                 },
                 error: function (xhr, status, message) {
