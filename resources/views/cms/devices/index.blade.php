@@ -88,7 +88,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" id="add_new_device"
                                 data-bs-target="#kt_modal_add_device">
                             <span class="svg-icon svg-icon-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -125,6 +125,10 @@
             if (country_id.val() != null){
                 getCityByCountryId(country_id);
             }
+        });
+
+        $(document).on('click', '#add_new_device', function (event) {
+            $('#device_temp_div').show();
         });
 
         $(document).on('click', '.pagination a', function (event) {
