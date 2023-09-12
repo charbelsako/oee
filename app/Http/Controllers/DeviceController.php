@@ -38,15 +38,25 @@ class DeviceController extends Controller
     public function store(DeviceRequest $request)
     {
 //        check_user_has_not_permission('device_create');
+        $device = false;
         $data = $request->only(['project','machine','process','version','country_id','city_id']);
-
-        $data['timezone'] = Country::find($request->country_id)->timezone;
-        $data['uuid'] = generate_new_device_uuid_code('PF','TM');
-
-        $device = Device::query()->create($data);
-        if ($device) {
-            $temp = DeviceTemp::find($request->device_temp_id);
-            $temp->update(['device_id'=>$device->id,'status'=>Constants::DEVICETEMPSTATUS['added']]);
+        $temp = DeviceTemp::find($request->device_temp_id);
+        if ($temp) {
+            $device_uuid = explode('-',$temp->device_uuid);
+            $first = @$device_uuid[0];
+            $second = @$device_uuid[1];
+            if ($first && $second) {
+                $data['timezone'] = Country::find($request->country_id)->timezone;
+                $data['uuid'] = generate_new_device_uuid_code($first,$second);
+                $device = Device::query()->create($data);
+                if ($device) {
+                    $temp->update([
+                        'device_id'=>$device->id,
+                        'status'=>Constants::DEVICETEMPSTATUS['added'],
+                        'uuid'=>$device->uuid
+                    ]);
+                }
+            }
         }
         $success = (bool)$device;
         $message = $device?'device create successfully':'device saved unsuccessfully';
