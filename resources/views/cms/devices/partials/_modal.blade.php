@@ -33,7 +33,7 @@
                                     name="device_temp_id" id="device_temp_id">
                                 <option>please choose temp device</option>
                                 @foreach($temps as $temp)
-                                    <option value="{{ $temp->id }}">{{ $temp->mac_address . ' - ' . $temp->device_uuid }}</option>
+                                    <option value="{{ $temp->id }}">{{ $temp->mac_address . ' - ' . $temp->prefix }}</option>
                                 @endforeach
                             </select>
                         </div>
