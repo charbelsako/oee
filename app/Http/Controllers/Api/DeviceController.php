@@ -84,7 +84,7 @@ class DeviceController extends Controller
         $uuid = null;
         $device_uuid = $request->device_uuid;
         $mac_address = $request->mac_address;
-        if ($request->filled('device_ uuid') && $request->filled('mac_address')) {
+        if ($request->filled('device_uuid') && $request->filled('mac_address')) {
             $temp = DeviceTemp::query()->where('device_uuid',$device_uuid)
                 ->where('mac_address',$mac_address)->first();
             if ($temp) {
