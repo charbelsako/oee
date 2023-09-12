@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('device_temps', function (Blueprint $table) {
             $table->id();
             $table->string('prefix');
+            $table->string('mac_address');
             $table->string('uuid')->nullable();
             $table->unsignedBigInteger('device_id')->nullable();
             $table->unsignedTinyInteger('status')->default(251)

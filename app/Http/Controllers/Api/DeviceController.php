@@ -33,21 +33,76 @@ class DeviceController extends Controller
         ]);
     }
 
-    public function storeDevice(Request $request)
+    public function deviceStatus(Request $request)
     {
         $status = false;
         $uuid = null;
-        if ($request->filled('device_uuid')) {
-            $device_uuid = explode('-',$request->device_uuid);
+        $mac_address = $request->mac_address;
+        if ($request->filled('mac_address')) {
+            $temp = DeviceTemp::query()
+                ->where('mac_address',$mac_address)->first();
+            if ($temp) {
+                return response()->json([
+                    'status' => true,
+                    'data' => $temp->uuid,
+                    'message' => 'device already registered'
+                ]);
+            }
+            $device_uuid = explode('-',$temp->device_uuid);
             $first = @$device_uuid[0];
             $second = @$device_uuid[1];
             if ($first && $second) {
                 $uuid = generate_new_device_uuid_code($first,$second);
                 $status = true;
             }
+        } else {
+            return response()->json([
+                'status' => false,
+                'data' => [],
+                'message' => 'device_uuid or mac_address is empty'
+            ]);
         }
         if ($status && $uuid) {
-            $temp = DeviceTemp::query()->create(['uuid'=>$uuid,'prefix'=>$request->device_uuid]);
+            $temp->update(['mac_address'=>$mac_address,'prefix'=>$device_uuid]);
+            return response()->json([
+                'status' => (bool)$temp,
+                'data' => @$temp->uuid,
+                'message' => 'Added Successfully!!'
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'data' => [],
+                'message' => 'Added Unsuccessfully!!'
+            ]);
+        }
+    }
+
+    public function storeDevice(Request $request)
+    {
+        $status = false;
+        $uuid = null;
+        $device_uuid = $request->device_uuid;
+        $mac_address = $request->mac_address;
+        if ($request->filled('device_ uuid') && $request->filled('mac_address')) {
+            $temp = DeviceTemp::query()->where('device_uuid',$device_uuid)
+                ->where('mac_address',$mac_address)->first();
+            if ($temp) {
+                return response()->json([
+                    'status' => true,
+                    'data' => $temp->uuid,
+                    'message' => 'device already registered'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'data' => [],
+                'message' => 'device_uuid or mac_address is empty'
+            ]);
+        }
+        if ($status && $uuid) {
+            $temp = DeviceTemp::query()->create(['mac_address'=>$mac_address,'prefix'=>$device_uuid]);
             return response()->json([
                 'status' => (bool)$temp,
                 'data' => @$temp->uuid,
