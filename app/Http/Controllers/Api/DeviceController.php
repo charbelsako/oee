@@ -120,8 +120,7 @@ class DeviceController extends Controller
                 'message' => 'device unsupported'
             ]);
         }
-        $device = Device::query()->where('uuid',$device_uuid)
-            ->where('status',Constants::getIdByName('added'))->first();
+        $device = Device::query()->where('uuid',$device_uuid)->first();
         if (!$device) {
             return response()->json([
                 'status' => false,
