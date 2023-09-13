@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\StoreDeviceData;
 use App\Models\AirFlow;
 use App\Models\ButtonStatus;
+use App\Models\Device;
 use App\Models\DeviceNote;
 use App\Models\DeviceTemp;
 use App\Models\Humidity;
@@ -111,6 +112,23 @@ class DeviceController extends Controller
 
     public function store(Request $request)
     {
+        $device_uuid = $request->header('X-Apikey');
+        if (empty($device_uuid)){
+            return response()->json([
+                'status' => false,
+                'data' => [],
+                'message' => 'device unsupported'
+            ]);
+        }
+        $device = Device::query()->where('uuid',$device_uuid)
+            ->where('status',Constants::getIdByName('added'))->first();
+        if (!$device) {
+            return response()->json([
+                'status' => false,
+                'data' => [],
+                'message' => 'device uuid unsupported'
+            ]);
+        }
 
         /*
          * {
@@ -132,7 +150,7 @@ class DeviceController extends Controller
          * A = Air flow (m/min)
          * P = Power(W)
          **/
-        $device_id = 1;
+        $device_id = $device->id;
         $unix_at = $request->time;
         $time = (int) $unix_at/1000;
         $time = Carbon::createFromTimestamp($time);
