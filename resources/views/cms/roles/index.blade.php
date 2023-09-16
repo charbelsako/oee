@@ -43,12 +43,12 @@
                                     fill="currentColor"/>
                             </svg>
                         </span>
-                        <input type="text" data-kt-device-table-filter="search"
-                               class="form-control form-control-solid w-250px ps-14" placeholder="Search device"/>
+                        <input type="text" data-kt-role-table-filter="search"
+                               class="form-control form-control-solid w-250px ps-14" placeholder="Search role"/>
                     </div>
                 </div>
                 <div class="card-toolbar">
-                    <div class="d-flex justify-content-end" data-kt-device-table-toolbar="base">
+                    <div class="d-flex justify-content-end" data-kt-role-table-toolbar="base">
                         <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click"
                                 data-kt-menu-placement="bottom-end">
                             <span class="svg-icon svg-icon-2">
@@ -66,12 +66,12 @@
                                 <div class="fs-5 text-dark fw-bold">Filter Options</div>
                             </div>
                             <div class="separator border-gray-200"></div>
-                            <div class="px-7 py-5" data-kt-device-table-filter="form">
+                            <div class="px-7 py-5" data-kt-role-table-filter="form">
                                 <div class="mb-10">
                                     <label class="form-label fs-6 fw-semibold">Status:</label>
                                     <select class="form-select form-select-solid fw-bold" data-kt-select2="true"
                                             data-placeholder="Select option" data-allow-clear="true"
-                                            data-kt-device-table-filter="role" data-hide-search="true">
+                                            data-kt-role-table-filter="role" data-hide-search="true">
                                         <option></option>
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
@@ -80,16 +80,16 @@
                                 <div class="d-flex justify-content-end">
                                     <button type="reset"
                                             class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6"
-                                            data-kt-menu-dismiss="true" data-kt-device-table-filter="reset">Reset
+                                            data-kt-menu-dismiss="true" data-kt-role-table-filter="reset">Reset
                                     </button>
                                     <button type="submit" class="btn btn-primary fw-semibold px-6"
-                                            data-kt-menu-dismiss="true" data-kt-device-table-filter="filter">Apply
+                                            data-kt-menu-dismiss="true" data-kt-role-table-filter="filter">Apply
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#kt_modal_add_device">
+                                data-bs-target="#kt_modal_add_role">
                             <span class="svg-icon svg-icon-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                      xmlns="http://www.w3.org/2000/svg">
@@ -101,11 +101,11 @@
                         </button>
                     </div>
                     <div class="d-flex justify-content-end align-items-center d-none"
-                         data-kt-device-table-toolbar="selected">
+                         data-kt-role-table-toolbar="selected">
                         <div class="fw-bold me-5">
-                            <span class="me-2" data-kt-device-table-select="selected_count"></span>Selected
+                            <span class="me-2" data-kt-role-table-select="selected_count"></span>Selected
                         </div>
-                        <button type="button" class="btn btn-danger" data-kt-device-table-select="delete_selected">Delete
+                        <button type="button" class="btn btn-danger" data-kt-role-table-select="delete_selected">Delete
                             Selected
                         </button>
                     </div>
@@ -133,7 +133,7 @@
             e.preventDefault();
             let request_url = $(this).data('action');
             $('#role_temp_div').hide();
-            getDeviceById(request_url);
+            getRoleById(request_url);
         });
 
         $(document).on('click', '.delete_role', function (e) {
@@ -165,7 +165,7 @@
                         },
                         success: function (res) {
                             if (res.success) {
-                                getDevices()
+                                getRoles()
                                 swal("Deleted!", res.message, "success");
                             } else {
                                 swal("Error", res.message, "error");
@@ -188,10 +188,6 @@
                 .find("input[type=checkbox], input[type=radio]").prop("checked", "").end();
         })
 
-        $(document).on('shown.bs.modal', '#kt_modal_add_role', function (e) {
-            getDeviceTempAvailable()
-        })
-
         $(document).on('submit', '#kt_modal_add_role_form', function (event) {
             event.preventDefault();
             let request_url = $(this).data('action');
@@ -209,11 +205,11 @@
                 },
                 complete: function (xhr, status) {
                     $('#new_role_btn').attr('disabled',false)
-                    getDeviceTempAvailable()
+                    getRoleTempAvailable()
                 },
                 success: function (res) {
                     if (res.success) {
-                        getDevices()
+                        getRoles()
                         swal("Save!", res.message, "success");
                         $('#kt_modal_add_role').modal('hide');
                         $('#role_temp_div').show();
@@ -227,7 +223,7 @@
             });
         });
 
-        function getDevices(page = 1) {
+        function getRoles(page = 1) {
             $.ajax({
                 url: "{{ route('roles.index') }}",
                 data: {
@@ -248,62 +244,7 @@
             });
         }
 
-        function getCityByCountryId(country_id,city_id = null) {
-            $.ajax({
-                url: "{{ route('roles.country.city') }}",
-                data: {
-                    'country_id': country_id,
-                },
-                beforeSend: function (xhr) {
-                    Oee.blockUI({target: '#roles_table'});
-                },
-                complete: function (xhr, status) {
-                    Oee.unblockUI('#roles_table');
-                },
-                success: function (res) {
-                    let cities = $('#city_id');
-                    cities.empty();
-                    let data = res.data;
-                    cities.append('<option>please choose city</option>');
-                    $.each(data,function(i){
-                        let selected_item = '';
-                        if (city_id == data[i]['id']){
-                            selected_item = 'selected';
-                        }
-                        cities.append('<option '+selected_item+' value="'+data[i]['id']+'">'+data[i]['name']+'</option>');
-                    });
-                },
-                error: function (xhr, status, message) {
-                    swal("Cancelled", "Something went wrong!", "error");
-                }
-            });
-        }
-
-        function getDeviceTempAvailable() {
-            $.ajax({
-                url: "{{ route('roles.temp') }}",
-                beforeSend: function (xhr) {
-                    Oee.blockUI({target: '#roles_table'});
-                },
-                complete: function (xhr, status) {
-                    Oee.unblockUI('#roles_table');
-                },
-                success: function (res) {
-                    let role_temp = $('#role_temp_id');
-                    role_temp.empty();
-                    let data = res.data;
-                    role_temp.append('<option>please choose role temp</option>');
-                    $.each(data,function(i){
-                        role_temp.append('<option value="'+data[i]['id']+'">'+data[i]['uuid']+'</option>');
-                    });
-                },
-                error: function (xhr, status, message) {
-                    swal("Cancelled", "Something went wrong!", "error");
-                }
-            });
-        }
-
-        function getDeviceById(request_url) {
+        function getRoleById(request_url) {
             $.ajax({
                 url: request_url,
                 beforeSend: function (xhr) {
@@ -315,12 +256,7 @@
                 success: function (res) {
                     $('#kt_modal_add_role_form').attr('data-action',"{{ route('roles.update') }}");
                     $('#role_id').val(res.data.id);
-                    $('#project').val(res.data.project);
-                    $('#machine').val(res.data.machine);
-                    $('#process').val(res.data.process);
-                    $('#version').val(res.data.version);
-                    $('#country_id').val(res.data.country_id);
-                    getCityByCountryId(res.data.country_id,res.data.city_id);
+                    $('#name').val(res.data.name);
                     $('#kt_modal_add_role').modal('show');
                 },
                 error: function (xhr, status, message) {

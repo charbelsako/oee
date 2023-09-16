@@ -30,7 +30,8 @@
                         <div class="fv-row mb-7">
                             <label class="required fw-semibold fs-6 mb-2">Role Name</label>
                             <div class="input-group">
-                                <input value="{{isset($item) ? $item->name : ''}}" type="text" id="role_name" class="form-control" name="role_name" required>
+                                <input value="" type="hidden" id="role_id" class="form-control" name="role_id" required>
+                                <input value="" type="text" id="name" class="form-control" name="name" required>
                             </div>
                             <div class="invalid-feedback"></div>
                         </div>
