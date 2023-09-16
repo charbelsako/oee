@@ -67,24 +67,23 @@ class RoleController extends Controller
     {
 //        check_user_has_not_permission('role_edit');
         $item = Role::query()->select(['id', 'name'])->find($id);
-
-        if (!$item) {
-            return redirect()->route('roles.index')->with('Role not found!');
-        }
-
-        return view('cms.roles.create', compact('item'));
+        $response['success'] = (bool)$item;
+        $response['message'] = $item?'get data successfully':'unsuccessfully';
+        $response['data'] = $item;
+        return response()->json($response);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
 //        check_user_has_not_permission('role_edit');
 
+        $id = $request->role_id;
         $response = [];
         $errors = [];
         try {
             //Validate inputs
             $inputs = [
-                'role_name' => 'required|string',
+                'name' => 'required|string',
             ];
 
             $validator = Validator::make($request->all(), $inputs);
@@ -97,7 +96,7 @@ class RoleController extends Controller
             $item = Role::query()->findOrFail($id);
 
             $item->update([
-                'name' => $request->role_name
+                'name' => $request->name
             ]);
 
             $response['success'] = true;
