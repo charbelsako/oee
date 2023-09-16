@@ -54,6 +54,7 @@ class StoreDeviceData implements ShouldQueue
      */
     public function handle()
     {
+        $second_per_pules = 5000;
         try{
             DB::beginTransaction();
             $pf = 1; // static ثابت حاليا حسب يوم 16/9
@@ -187,14 +188,12 @@ class StoreDeviceData implements ShouldQueue
             $product_ok = $notes[0];
             $product_ok = explode(',',$product_ok);
             foreach ($product_ok as $i_ok=>$ok){
-                if ($i_ok == 0) {
-                    continue;
-                }elseif (empty($ok)) {
+                if (empty($ok)) {
                     continue;
                 }else{
                     Product::query()->create([
                         'device_id'=>$device_id,
-                        'time'=>$product_ok[0],
+                        'time'=>$second_per_pules,
                         'value'=>$ok,
                         'registered_at'=>$time,
                         'unix_at'=>$unix_at,
@@ -203,15 +202,13 @@ class StoreDeviceData implements ShouldQueue
             }
             $product_nok = $notes[1];
             $product_nok = explode(',',$product_nok);
-            foreach ($product_nok as $i_nok=>$nok){
-                if ($i_nok == 0) {
-                    continue;
-                }elseif (empty($pow)) {
+            foreach ($product_nok as $nok){
+                if (empty($pow)) {
                     continue;
                 }else{
-                    Power::query()->create([
+                    Product::query()->create([
                         'device_id'=>$device_id,
-                        'time'=>$product_nok[0],
+                        'time'=>$second_per_pules,
                         'value'=>$nok,
                         'registered_at'=>$time,
                         'unix_at'=>$unix_at,
