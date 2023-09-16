@@ -62,7 +62,7 @@ class StoreDeviceData implements ShouldQueue
             $device_id = $this->device_id;
             $time = $this->time;
             $unix_at = $this->unix_at;
-            $device_note = DeviceNote::query()->create([
+            DeviceNote::query()->create([
                 'notes'=>$notes,
                 'registered_at'=>$time,
                 'unix_at'=>$unix_at,
@@ -88,132 +88,126 @@ class StoreDeviceData implements ShouldQueue
             $notes = explode('H',$notes[1]);
             $temperature = $notes[0];
             $temperature = explode(',',$temperature);
-            foreach ($temperature as $i_temp=>$temp){
-                if ($i_temp == 0) {
-                    continue;
-                }elseif (empty($temp)) {
-                    continue;
-                }else{
-                    Temperature::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$temperature[0],
-                        'value'=>$temp,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                }
+            foreach ($temperature as $temp){
+                Temperature::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$temperature[0],
+                    'value'=>$temp,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
             }
             $notes = explode('V',$notes[1]);
             $humidity = $notes[0];
             $humidity = explode(',',$humidity);
-            foreach ($humidity as $i_hum=>$hum){
-                if ($i_hum == 0) {
-                    continue;
-                }elseif (empty($hum)) {
-                    continue;
-                }else{
-                    Humidity::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$humidity[0],
-                        'value'=>$hum,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                }
+            foreach ($humidity as $hum){
+                Humidity::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$humidity[0],
+                    'value'=>$hum,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
             }
             $notes = explode('I',$notes[1]);
             $volt = $notes[0];
             $volt = explode(',',$volt);
-            foreach ($volt as $i_vol=>$vol){
-                if ($i_vol == 0) {
-                    continue;
-                }elseif (empty($vol)) {
-                    continue;
-                }else{
-                    Volt::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$volt[0],
-                        'value'=>$vol,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                }
+            foreach ($volt as $vol){
+                Volt::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$volt[0],
+                    'value'=>$vol,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
             }
             $notes = explode('A',$notes[1]);
             $current = $notes[0];
             $current = explode(',',$current);
-            foreach ($current as $i_cur=>$cur){
-                if ($i_cur == 0) {
-                    continue;
-                }elseif (empty($cur)) {
-                    continue;
-                }else{
-                    Current::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$current[0],
-                        'value'=>$cur,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                    $vol_n = $volt[$i_cur];
-                    $power_value = $pf * $cur * $vol_n;
-                    Power::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$current[0],
-                        'value'=>$power_value,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                }
+            foreach ($current as $cur){
+                Current::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$current[0],
+                    'value'=>$cur,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+                $vol_n = $volt[$i_cur];
+                $power_value = $pf * $cur * $vol_n;
+                Power::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$current[0],
+                    'value'=>$power_value,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
             }
             $notes = explode('O',$notes[1]);
             $airflow = $notes[0];
             $airflow = explode(',',$airflow);
-            foreach ($airflow as $i_air=>$air){
-                if ($i_air == 0) {
-                    continue;
-                }elseif (empty($air)) {
-                    continue;
-                }else{
-                    AirFlow::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$airflow[0],
-                        'value'=>$air,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                }
+            foreach ($airflow as $air){
+                AirFlow::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$airflow[0],
+                    'value'=>$air,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
             }
             $notes = explode('N',$notes[1]);
             $product_ok = $notes[0];
             $product_ok = explode(',',$product_ok);
-            foreach ($product_ok as $i_ok=>$ok){
-                if (empty($ok)) {
-                    continue;
-                }else{
-                    Product::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$second_per_pules,
-                        'value'=>$ok,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                }
+            foreach ($product_ok as $ok){
+                Product::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$second_per_pules,
+                    'value'=>$ok,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
             }
             $product_nok = $notes[1];
             $product_nok = explode(',',$product_nok);
             foreach ($product_nok as $nok){
-                if (empty($pow)) {
-                    continue;
-                }else{
-                    Product::query()->create([
-                        'device_id'=>$device_id,
-                        'time'=>$second_per_pules,
-                        'value'=>$nok,
-                        'registered_at'=>$time,
-                        'unix_at'=>$unix_at,
-                    ]);
-                }
+                Product::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$second_per_pules,
+                    'value'=>$nok,
+                    'btn1'=>$btn1,
+                    'btn2'=>$btn2,
+                    'btn3'=>$btn3,
+                    'btn4'=>$btn4,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
             }
             DB::commit();
             Log::info('Added Successfully!');
