@@ -132,22 +132,26 @@ class DeviceController extends Controller
         /*
          * {
          *     "notes":"*
+         *              S255,
          *              T2000,0.00,0.00,
          *              H2000,0.00,0.00,
-         *              V1000,444.50,228.50,228.30,228.10,228.60,
-         *              I1000,434.70,226.10,225.90,226.70,227.50,
+         *              V1000,224.10,223.30,224.10,226.10,222.70,
+         *              I1000,222.50,221.50,221.20,223.20,220.30,
          *              A5000,0,
-         *              S255,
-         *              P0,0,
+         *              O0,
+         *              N0
          *              #",
          *     "time": "1690477773200"
          * }
-         * T = Temperature (C)
-         * H = Humidity (%RH)
-         * V = Volt (V)
-         * I = Current (A)
-         * A = Air flow (m/min)
-         * P = Power(W)
+         * S = Button Status(decimal) - need to convert to binary
+         * T = Temperature (C) درجة الحرارة
+         * H = Humidity (%RH) الرطوبة
+         * V = Volt (V) الفولت
+         * I = Current (A) التيار
+         * A = Air flow (m/min) تدفق الهواء
+         * O = Product ok المنتجات الناجحة
+         * N = Product nok المنتجات الفاشلة
+         * P(W) = V * I * PF التشغيل
          **/
         $device_id = $device->id;
         $unix_at = $request->time;
@@ -158,7 +162,8 @@ class DeviceController extends Controller
         $notes = $request->notes;
         if ($request->has('notes') && $request->has('time') && Str::contains($notes,'T')
             && Str::contains($notes,'H') && Str::contains($notes,'V') && Str::contains($notes,'I')
-            && Str::contains($notes,'A') && Str::contains($notes,'S') && Str::contains($notes,'P')) {
+            && Str::contains($notes,'A') && Str::contains($notes,'S') && Str::contains($notes,'O')
+            && Str::contains($notes,'N')) {
             Log::info("Start Calling Job");
             dispatch((new StoreDeviceData($notes,$device_id,$time,$unix_at))->onQueue('store_device_data')->delay(Carbon::now()-> addSecond()));
             Log::info("End Calling Job");

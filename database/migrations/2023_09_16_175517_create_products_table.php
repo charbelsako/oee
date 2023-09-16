@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('temperatures', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('device_id');
+            $table->unsignedTinyInteger('is_ok')->default(1);
             $table->unsignedTinyInteger('btn1')->default(1);
             $table->unsignedTinyInteger('btn2')->default(1);
             $table->unsignedTinyInteger('btn3')->default(1);
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('temperatures');
+        Schema::dropIfExists('products');
     }
 };

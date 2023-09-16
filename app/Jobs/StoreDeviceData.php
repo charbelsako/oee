@@ -4,9 +4,13 @@ namespace App\Jobs;
 
 use App\Models\AirFlow;
 use App\Models\ButtonStatus;
+use App\Models\Current;
 use App\Models\DeviceNote;
 use App\Models\Humidity;
+use App\Models\Power;
+use App\Models\Product;
 use App\Models\Temperature;
+use App\Models\Volt;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -52,6 +56,7 @@ class StoreDeviceData implements ShouldQueue
     {
         try{
             DB::beginTransaction();
+            $pf = 1; // static ثابت حاليا حسب يوم 16/9
             $notes = $this->notes;
             $device_id = $this->device_id;
             $time = $this->time;
@@ -62,7 +67,23 @@ class StoreDeviceData implements ShouldQueue
                 'unix_at'=>$unix_at,
             ]);
             $notes = str_replace(['*','#'],'',$notes);
-            $notes = explode('T',$notes);
+            $notes = explode('S',$notes);
+            $notes = explode('T',$notes[1]);
+            $s_buttons = str_replace(',','',$notes[0]);
+            $s_buttons = decbin($s_buttons);
+            $btn1 = Str::substr($s_buttons, 7, 1);
+            $btn2 = Str::substr($s_buttons, 6, 1);
+            $btn3 = Str::substr($s_buttons, 5, 1);
+            $btn4 = Str::substr($s_buttons, 4, 1);
+            ButtonStatus::query()->create([
+                'device_id'=>$device_id,
+                'btn1'=>$btn1,
+                'btn2'=>$btn2,
+                'btn3'=>$btn3,
+                'btn4'=>$btn4,
+                'registered_at'=>$time,
+                'unix_at'=>$unix_at,
+            ]);
             $notes = explode('H',$notes[1]);
             $temperature = $notes[0];
             $temperature = explode(',',$temperature);
@@ -81,7 +102,6 @@ class StoreDeviceData implements ShouldQueue
                     ]);
                 }
             }
-
             $notes = explode('V',$notes[1]);
             $humidity = $notes[0];
             $humidity = explode(',',$humidity);
@@ -103,16 +123,16 @@ class StoreDeviceData implements ShouldQueue
             $notes = explode('I',$notes[1]);
             $volt = $notes[0];
             $volt = explode(',',$volt);
-            foreach ($volt as $i_vol=>$hum){
+            foreach ($volt as $i_vol=>$vol){
                 if ($i_vol == 0) {
                     continue;
-                }elseif (empty($hum)) {
+                }elseif (empty($vol)) {
                     continue;
                 }else{
-                    Humidity::query()->create([
+                    Volt::query()->create([
                         'device_id'=>$device_id,
                         'time'=>$volt[0],
-                        'value'=>$hum,
+                        'value'=>$vol,
                         'registered_at'=>$time,
                         'unix_at'=>$unix_at,
                     ]);
@@ -127,16 +147,25 @@ class StoreDeviceData implements ShouldQueue
                 }elseif (empty($cur)) {
                     continue;
                 }else{
-                    Humidity::query()->create([
+                    Current::query()->create([
                         'device_id'=>$device_id,
                         'time'=>$current[0],
                         'value'=>$cur,
                         'registered_at'=>$time,
                         'unix_at'=>$unix_at,
                     ]);
+                    $vol_n = $volt[$i_cur];
+                    $power_value = $pf * $cur * $vol_n;
+                    Power::query()->create([
+                        'device_id'=>$device_id,
+                        'time'=>$current[0],
+                        'value'=>$power_value,
+                        'registered_at'=>$time,
+                        'unix_at'=>$unix_at,
+                    ]);
                 }
             }
-            $notes = explode('S',$notes[1]);
+            $notes = explode('O',$notes[1]);
             $airflow = $notes[0];
             $airflow = explode(',',$airflow);
             foreach ($airflow as $i_air=>$air){
@@ -154,34 +183,36 @@ class StoreDeviceData implements ShouldQueue
                     ]);
                 }
             }
-            $notes = explode('P',$notes[1]);
-            $s_buttons = str_replace(',','',$notes[0]);
-            $s_buttons = decbin($s_buttons);
-            $btn1 = Str::substr($s_buttons, 7, 1);
-            $btn2 = Str::substr($s_buttons, 6, 1);
-            $btn3 = Str::substr($s_buttons, 5, 1);
-            $btn4 = Str::substr($s_buttons, 4, 1);
-            ButtonStatus::query()->create([
-                'device_id'=>$device_id,
-                'btn1'=>$btn1,
-                'btn2'=>$btn2,
-                'btn3'=>$btn3,
-                'btn4'=>$btn4,
-                'registered_at'=>$time,
-                'unix_at'=>$unix_at,
-            ]);
-            $power = $notes[1];
-            $power = explode(',',$power);
-            foreach ($power as $i_pow=>$pow){
-                if ($i_pow == 0) {
+            $notes = explode('N',$notes[1]);
+            $product_ok = $notes[0];
+            $product_ok = explode(',',$product_ok);
+            foreach ($product_ok as $i_ok=>$ok){
+                if ($i_ok == 0) {
+                    continue;
+                }elseif (empty($ok)) {
+                    continue;
+                }else{
+                    Product::query()->create([
+                        'device_id'=>$device_id,
+                        'time'=>$product_ok[0],
+                        'value'=>$ok,
+                        'registered_at'=>$time,
+                        'unix_at'=>$unix_at,
+                    ]);
+                }
+            }
+            $product_nok = $notes[1];
+            $product_nok = explode(',',$product_nok);
+            foreach ($product_nok as $i_nok=>$nok){
+                if ($i_nok == 0) {
                     continue;
                 }elseif (empty($pow)) {
                     continue;
                 }else{
-                    Humidity::query()->create([
+                    Power::query()->create([
                         'device_id'=>$device_id,
-                        'time'=>$power[0],
-                        'value'=>$pow,
+                        'time'=>$product_nok[0],
+                        'value'=>$nok,
                         'registered_at'=>$time,
                         'unix_at'=>$unix_at,
                     ]);
