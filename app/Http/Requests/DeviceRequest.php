@@ -24,17 +24,21 @@ class DeviceRequest extends FormRequest
         $rule_txt = 'required';
         if (request()->filled('device_id')) {
             $rule_added = ['device_id' => $rule_txt.'|exists:devices,id'];
-            $rule_txt = 'nullable';
+//            $rule_txt = 'nullable';
         } else {
             $rule_added = ['device_temp_id' => $rule_txt.'|exists:device_temps,id'];
         }
         return $rule_added  + [
-            'project'    => $rule_txt,
-            'machine'    => $rule_txt,
-            'process'    => $rule_txt,
-            'version'    => $rule_txt,
-            'country_id' => $rule_txt.'|exists:countries,id',
-            'city_id'    => $rule_txt.'|exists:countries,id',
+                'project'                 => $rule_txt,
+                'machine'                 => $rule_txt,
+                'process'                 => $rule_txt,
+                'version'                 => $rule_txt,
+                'country_id'              => $rule_txt . '|exists:countries,id',
+                'city_id'                 => $rule_txt . '|exists:countries,id',
+                'plus_millisecond'        => $rule_txt . '|numeric',
+                'produced_parts_per_hour' => $rule_txt . '|numeric',
+                'second_per_pulse'        => $rule_txt . '|numeric',
+                'pieces_per_pules'        => $rule_txt . '|numeric',
         ];
     }
 }

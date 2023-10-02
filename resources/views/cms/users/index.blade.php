@@ -43,51 +43,12 @@
                                     fill="currentColor"/>
                             </svg>
                         </span>
-                        <input type="text" data-kt-user-table-filter="search"
+                        <input type="text" data-kt-user-table-filter="search" id="search_txt"
                                class="form-control form-control-solid w-250px ps-14" placeholder="Search user"/>
                     </div>
                 </div>
                 <div class="card-toolbar">
                     <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
-                        <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click"
-                                data-kt-menu-placement="bottom-end">
-                            <span class="svg-icon svg-icon-2">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M19.0759 3H4.72777C3.95892 3 3.47768 3.83148 3.86067 4.49814L8.56967 12.6949C9.17923 13.7559 9.5 14.9582 9.5 16.1819V19.5072C9.5 20.2189 10.2223 20.7028 10.8805 20.432L13.8805 19.1977C14.2553 19.0435 14.5 18.6783 14.5 18.273V13.8372C14.5 12.8089 14.8171 11.8056 15.408 10.964L19.8943 4.57465C20.3596 3.912 19.8856 3 19.0759 3Z"
-                                        fill="currentColor"/>
-                                </svg>
-                            </span>
-                            Filter
-                        </button>
-                        <div class="menu menu-sub menu-sub-dropdown w-300px w-md-325px" data-kt-menu="true">
-                            <div class="px-7 py-5">
-                                <div class="fs-5 text-dark fw-bold">Filter Options</div>
-                            </div>
-                            <div class="separator border-gray-200"></div>
-                            <div class="px-7 py-5" data-kt-user-table-filter="form">
-                                <div class="mb-10">
-                                    <label class="form-label fs-6 fw-semibold">Status:</label>
-                                    <select class="form-select form-select-solid fw-bold" data-kt-select2="true"
-                                            data-placeholder="Select option" data-allow-clear="true"
-                                            data-kt-user-table-filter="role" data-hide-search="true">
-                                        <option></option>
-                                        <option value="1">Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button type="reset"
-                                            class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6"
-                                            data-kt-menu-dismiss="true" data-kt-user-table-filter="reset">Reset
-                                    </button>
-                                    <button type="submit" class="btn btn-primary fw-semibold px-6"
-                                            data-kt-menu-dismiss="true" data-kt-user-table-filter="filter">Apply
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#kt_modal_add_user">
                             <span class="svg-icon svg-icon-2">
@@ -129,11 +90,124 @@
             getUsers(page)
         });
 
+        $(document).on('keyup', '#search_txt', function (event) {
+            let search_txt = $(this).val();
+            if(search_txt.length > 3 || search_txt.length == 0){
+                getUsers()
+            }
+        });
+
+        $(document).on('click', '.edit_user', function (e) {
+            e.preventDefault();
+            let request_url = $(this).data('action');
+            getUserById(request_url);
+        });
+
+        $(document).on('click', '.delete_user', function (e) {
+            e.preventDefault();
+            let request_url = $(this).data('action');
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this row!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel plx!",
+                closeOnConfirm: true,
+                closeOnCancel: false
+            }).then((willDelete) => {
+                if (willDelete){
+                    $.ajax({
+                        url: request_url,
+                        method: 'POST',
+                        processData: false,
+                        contentType: false,
+                        dataType: "json",
+                        beforeSend: function (xhr) {
+                            Oee.blockUI({target: '#user_table'});
+                        },
+                        complete: function (xhr, status) {
+                            Oee.unblockUI('#user_table');
+                        },
+                        success: function (res) {
+                            if (res.success) {
+                                getUsers()
+                                swal("Deleted!", res.message, "success");
+                            } else {
+                                swal("Error", res.message, "error");
+                            }
+                        },
+                        error: function (xhr, status, message) {
+                            swal("Cancelled", "Something went wrong!", "error");
+                        }
+                    });
+                } else {
+                    swal("Cancelled", "Your row is not deleted :)", "error");
+                }
+            });
+        });
+
+        $(document).on('hidden.bs.modal', '#kt_modal_add_user', function (e) {
+            $('#kt_modal_add_user_form').attr('action',"{{ route('users.store') }}");
+            $(this)
+                .find("input,textarea").val('').end()
+                .find("select").each(function() {this.selectedIndex = 0;}).end()
+                .find("input[type=checkbox], input[type=radio]").prop("checked", "").end();
+        })
+
+        /*$(document).on('shown.bs.modal', '#kt_modal_add_user', function (e) {
+            $('#kt_modal_add_user_form').attr('data-action',"{{ route('users.store') }}");
+        })*/
+
+        $(document).on('submit', '#kt_modal_add_user_form', function (event) {
+            event.preventDefault();
+            let request_url = $(this).attr('action');
+            var form = $(this)[0];
+            var form_data = new FormData(form);
+            var role = 2;
+            if ($('#kt_modal_update_role_option_0').is(':checked')){
+                role = 0;
+            }else if ($('#kt_modal_update_role_option_0').is(':checked')){
+                role = 1;
+            }
+            form_data.append('role',role);
+            $.ajax({
+                url: request_url,
+                method: 'POST',
+                data: form_data,
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                beforeSend: function (xhr) {
+                    $('#new_user_btn').attr('disabled',true)
+                },
+                complete: function (xhr, status) {
+                    $('#new_user_btn').attr('disabled',false)
+                },
+                success: function (res) {
+                    if (res.success) {
+                        getUsers()
+                        swal("Save!", res.message, "success");
+                        $('#kt_modal_add_user').modal('hide');
+                        $('#kt_modal_add_user_form').attr('action',"{{ route('users.store') }}");
+                    } else {
+                        swal("Error", res.message, "error");
+                    }
+                },
+                error: function (xhr, status, message) {
+                    swal("Cancelled", "Something went wrong!", "error");
+                }
+            });
+        });
+
         function getUsers(page = 1) {
+            let search_txt = $('#search_txt').val();
             $.ajax({
                 url: "{{ route('users.index') }}",
                 data: {
                     'page': page,
+                    'search': search_txt,
                 },
                 beforeSend: function (xhr) {
                     Oee.blockUI({target: '#users_table'});
@@ -150,81 +224,33 @@
             });
         }
 
-        $(document).on('click', '.delete_area', function (e) {
-            e.preventDefault();
-            let request_url = $(this).data('action');
-            swal({
-                title: "Are you sure?",
-                text: "You will not be able to recover this row!",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes, delete it!",
-                cancelButtonText: "No, cancel plx!",
-                closeOnConfirm: true,
-                closeOnCancel: false
-            }, function (isConfirm) {
-                if (isConfirm) {
-                    $.ajax({
-                        url: request_url,
-                        method: 'POST',
-                        processData: false,
-                        contentType: false,
-                        dataType: "json",
-                        beforeSend: function (xhr) {
-                            Oee.blockUI({target: '#area_table'});
-                        },
-                        complete: function (xhr, status) {
-                            Oee.unblockUI('#area_table');
-                        },
-                        success: function (res) {
-                            if (res.success) {
-                                getAreas()
-                                swal("Deleted!", res.message, "success");
-                            } else {
-                                swal("Error", res.message, "error");
-                            }
-                        },
-                        error: function (xhr, status, message) {
-                            swal("Cancelled", "Something went wrong!", "error");
-                        }
-                    });
-                } else {
-                    swal("Cancelled", "Your row is not deleted :)", "error");
-                }
-            });
-        });
-
-        $(document).on('submit', '#kt_modal_add_user_form', function (event) {
-            event.preventDefault();
-            var form = $(this)[0];
-            var form_data = new FormData(form);
+        function getUserById(request_url) {
             $.ajax({
-                url: "{{ route('users.store') }}",
-                method: 'POST',
-                data: form_data,
-                processData: false,
-                contentType: false,
-                dataType: "json",
+                url: request_url,
                 beforeSend: function (xhr) {
-                    $('#new_user_btn').attr('disabled',true)
+                    Oee.blockUI({target: '#users_table'});
                 },
                 complete: function (xhr, status) {
-                    $('#new_user_btn').attr('disabled',false)
+                    Oee.unblockUI('#users_table');
                 },
                 success: function (res) {
-                    if (res.success) {
-                        getUsers()
-                        swal("Save!", res.message, "success");
-                        $('#kt_modal_add_user_form').modal('hide');
-                    } else {
-                        swal("Error", res.message, "error");
+                    $('#kt_modal_add_user_form').attr('action',"{{ route('users.update') }}");
+                    $('#user_id').val(res.data.id);
+                    $('#name').val(res.data.name);
+                    $('#email').val(res.data.email);
+                    if (res.role.name == 'Viewer'){
+                        $('#kt_modal_update_role_option_0').prop('checked',true);
+                    }else if (res.role.name == 'Editor'){
+                        $('#kt_modal_update_role_option_1').prop('checked',true);
+                    }else{
+                        $('#kt_modal_update_role_option_2').prop('checked',true);
                     }
+                    $('#kt_modal_add_user').modal('show');
                 },
                 error: function (xhr, status, message) {
                     swal("Cancelled", "Something went wrong!", "error");
                 }
             });
-        });
+        }
     </script>
 @endsection

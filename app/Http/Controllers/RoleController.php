@@ -14,7 +14,10 @@ class RoleController extends Controller
 //        check_user_has_not_permission('role_index');
         if (\request()->ajax()) {
             $per_page = $request->get('per_page', 10);
-            $items = Role::query()->select('id', 'name')->orderBy('id')->paginate($per_page);
+            $items = Role::query()->when($request->filled('search'),function ($q) use ($request){
+                $search = '%'.$request->search.'%';
+                $q->where('name','like',$search);
+            })->select('id', 'name')->orderBy('id')->paginate($per_page);
 
             $data['view_render'] = view('cms.roles.partials._table', compact('items'))->render();
             return response(['status' => true, 'data' => $data], 200);
@@ -36,7 +39,7 @@ class RoleController extends Controller
         try {
             //Validate inputs
             $inputs = [
-                'role_name' => 'required|string',
+                'name' => 'required|string',
             ];
 
             $validator = Validator::make($request->all(), $inputs);
@@ -47,7 +50,7 @@ class RoleController extends Controller
             }
 
             $role = Role::query()->create([
-                'name' => $request->role_name,
+                'name' => $request->name,
                 'guard_name' => "web",
             ]);
 

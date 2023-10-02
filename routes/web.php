@@ -40,10 +40,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/create', [UserController::class,'create'])->name('create')/*->middleware('permission:user_create')*/;
         Route::post('/store', [UserController::class,'store'])->name('store')/*->middleware('permission:user_create')*/;
         Route::get('/edit/{id}', [UserController::class,'edit'])->name('edit')/*->middleware('permission:user_edit')*/;
-        Route::post('/update/{id}', [UserController::class,'update'])->name('update')/*->middleware('permission:user_edit')*/;
+        Route::post('/update', [UserController::class,'update'])->name('update')/*->middleware('permission:user_edit')*/;
         Route::post('/delete/{id}', [UserController::class,'delete'])->name('delete')/*->middleware('permission:user_delete')*/;
 
         Route::post('/{id}/change-status', [UserController::class,'changeStatus'])->name('status')/*->middleware('permission:user_status')*/;
+        Route::get('/profile', [UserController::class,'profile'])->name('profile.get')/*->middleware('permission:user_status')*/;
+        Route::post('/profile', [UserController::class,'profileUpdate'])->name('profile.post')/*->middleware('permission:user_status')*/;
     });
 
     Route::group(['prefix' => 'devices', 'as' => 'devices.'], function () {

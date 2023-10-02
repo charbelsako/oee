@@ -21,4 +21,5 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.2/dist/sweetalert2.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.2/dist/sweetalert2.css" rel="stylesheet">
     @yield('css')
+    @stack('css')
 </head>

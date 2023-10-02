@@ -72,79 +72,109 @@ class StoreDeviceData implements ShouldQueue
             $notes = explode('T',$notes[1]);
             $s_buttons = str_replace(',','',$notes[0]);
             $s_buttons = decbin($s_buttons);
-            $btn1 = Str::substr($s_buttons, 7, 1);
-            $btn2 = Str::substr($s_buttons, 6, 1);
-            $btn3 = Str::substr($s_buttons, 5, 1);
-            $btn4 = Str::substr($s_buttons, 4, 1);
-            ButtonStatus::query()->create([
-                'device_id'=>$device_id,
-                'btn1'=>$btn1,
-                'btn2'=>$btn2,
-                'btn3'=>$btn3,
-                'btn4'=>$btn4,
-                'registered_at'=>$time,
-                'unix_at'=>$unix_at,
-            ]);
+            $start = Str::substr($s_buttons, 7, 1);
+            $pause = Str::substr($s_buttons, 6, 1);
+            $inspection = Str::substr($s_buttons, 5, 1);
+            $breakdown = Str::substr($s_buttons, 4, 1);
+
             $notes = explode('H',$notes[1]);
             $temperature = $notes[0];
             $temperature = explode(',',$temperature);
+
+            $notes = explode('V',$notes[1]);
+            $humidity = $notes[0];
+            $humidity = explode(',',$humidity);
+
+            $notes = explode('I',$notes[1]);
+            $volt = $notes[0];
+            $volt = explode(',',$volt);
+
+            $notes = explode('A',$notes[1]);
+            $current = $notes[0];
+            $current = explode(',',$current);
+
+            $notes = explode('O',$notes[1]);
+            $airflow = $notes[0];
+            $airflow = explode(',',$airflow);
+
+            $notes = explode('N',$notes[1]);
+            $product_ok = $notes[0];
+            $product_ok = explode(',',$product_ok);
+            foreach ($product_ok as $ok){
+                if ($ok > 0 && $pause == 0){
+                    $start = 0; // 0 => on
+                    $pause = 1; // 1 => off
+                    break;
+                }
+            }
+
+            $product_nok = $notes[1];
+            $product_nok = explode(',',$product_nok);
+            foreach ($product_nok as $nok){
+                if ($nok > 0 && $pause == 0){
+                    $start = 0; // 0 => on
+                    $pause = 1; // 1 => off
+                    break;
+                }
+            }
+
+            ButtonStatus::query()->create([
+                'device_id'=>$device_id,
+                'start'=>$start,
+                'pause'=>$pause,
+                'inspection'=>$inspection,
+                'breakdown'=>$breakdown,
+                'registered_at'=>$time,
+                'unix_at'=>$unix_at,
+            ]);
             foreach ($temperature as $temp){
                 Temperature::query()->create([
                     'device_id'=>$device_id,
                     'time'=>$temperature[0],
                     'value'=>$temp,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
             }
-            $notes = explode('V',$notes[1]);
-            $humidity = $notes[0];
-            $humidity = explode(',',$humidity);
             foreach ($humidity as $hum){
                 Humidity::query()->create([
                     'device_id'=>$device_id,
                     'time'=>$humidity[0],
                     'value'=>$hum,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
             }
-            $notes = explode('I',$notes[1]);
-            $volt = $notes[0];
-            $volt = explode(',',$volt);
             foreach ($volt as $vol){
                 Volt::query()->create([
                     'device_id'=>$device_id,
                     'time'=>$volt[0],
                     'value'=>$vol,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
             }
-            $notes = explode('A',$notes[1]);
-            $current = $notes[0];
-            $current = explode(',',$current);
-            foreach ($current as $cur){
+            foreach ($current as $i_cur=>$cur){
                 Current::query()->create([
                     'device_id'=>$device_id,
                     'time'=>$current[0],
                     'value'=>$cur,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
@@ -154,61 +184,56 @@ class StoreDeviceData implements ShouldQueue
                     'device_id'=>$device_id,
                     'time'=>$current[0],
                     'value'=>$power_value,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
             }
-            $notes = explode('O',$notes[1]);
-            $airflow = $notes[0];
-            $airflow = explode(',',$airflow);
             foreach ($airflow as $air){
                 AirFlow::query()->create([
                     'device_id'=>$device_id,
                     'time'=>$airflow[0],
                     'value'=>$air,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
             }
-            $notes = explode('N',$notes[1]);
-            $product_ok = $notes[0];
-            $product_ok = explode(',',$product_ok);
             foreach ($product_ok as $ok){
                 Product::query()->create([
                     'device_id'=>$device_id,
+                    'is_ok'=>1,
                     'time'=>$second_per_pules,
                     'value'=>$ok,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
             }
-            $product_nok = $notes[1];
-            $product_nok = explode(',',$product_nok);
             foreach ($product_nok as $nok){
                 Product::query()->create([
                     'device_id'=>$device_id,
+                    'is_ok'=>0,
                     'time'=>$second_per_pules,
                     'value'=>$nok,
-                    'btn1'=>$btn1,
-                    'btn2'=>$btn2,
-                    'btn3'=>$btn3,
-                    'btn4'=>$btn4,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
                     'registered_at'=>$time,
                     'unix_at'=>$unix_at,
                 ]);
             }
+
             DB::commit();
             Log::info('Added Successfully!');
         } catch (\Exception $exception){
