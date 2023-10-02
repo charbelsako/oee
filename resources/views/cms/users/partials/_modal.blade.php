@@ -17,8 +17,7 @@
                 </div>
             </div>
             <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
-                <form id="kt_modal_add_user_form" class="form" action="#">
-                    @csrf
+                <form id="kt_modal_add_user_form" class="form" action="{{ route('users.store') }}">
                     <div class="d-flex flex-column scroll-y me-n7 pe-7"
                          id="kt_modal_add_user_scroll" data-kt-scroll="true"
                          data-kt-scroll-activate="{default: false, lg: true}"
@@ -28,13 +27,14 @@
                          data-kt-scroll-offset="300px">
                         <div class="fv-row mb-7">
                             <label class="required fw-semibold fs-6 mb-2">Full Name</label>
-                            <input type="text" name="name"
+                            <input type="hidden" name="user_id" id="user_id"/>
+                            <input type="text" name="name" id="name"
                                    class="form-control form-control-solid mb-3 mb-lg-0"
                                    placeholder="Full name" value=""/>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="required fw-semibold fs-6 mb-2">Email</label>
-                            <input type="email" name="email"
+                            <input type="email" name="email" id="email"
                                    class="form-control form-control-solid mb-3 mb-lg-0"
                                    placeholder="example@domain.com" value=""/>
                         </div>
@@ -50,8 +50,7 @@
                             <div class="d-flex fv-row">
                                 <div class="form-check form-check-custom form-check-solid">
                                     <input class="form-check-input me-3" name="role"
-                                           type="radio" value="0" id="kt_modal_update_role_option_0"
-                                           checked='checked'/>
+                                           type="radio" value="0" id="kt_modal_update_role_option_0"/>
                                     <label class="form-check-label"
                                            for="kt_modal_update_role_option_0">
                                         <span class="fw-bold text-gray-800">Administrator</span><br/>

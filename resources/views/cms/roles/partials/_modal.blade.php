@@ -17,9 +17,7 @@
                 </div>
             </div>
             <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
-                <form id="kt_modal_add_role_form" class="form"
-                      data-action="{{ route('roles.store') }}">
-                    @csrf
+                <form id="kt_modal_add_role_form" class="form" action="{{ route('roles.store') }}">
                     <div class="d-flex flex-column scroll-y me-n7 pe-7"
                          id="kt_modal_add_role_scroll" data-kt-scroll="true"
                          data-kt-scroll-activate="{default: false, lg: true}"

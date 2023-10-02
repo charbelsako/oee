@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('powers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('device_id');
-            $table->unsignedTinyInteger('btn1')->default(1);
-            $table->unsignedTinyInteger('btn2')->default(1);
-            $table->unsignedTinyInteger('btn3')->default(1);
-            $table->unsignedTinyInteger('btn4')->default(1);
+            $table->unsignedTinyInteger('start')->default(1);
+            $table->unsignedTinyInteger('pause')->default(1);
+            $table->unsignedTinyInteger('inspection')->default(1);
+            $table->unsignedTinyInteger('breakdown')->default(1);
             $table->unsignedInteger('time');
             $table->decimal('value');
             $table->dateTime('registered_at');

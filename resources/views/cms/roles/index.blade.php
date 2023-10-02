@@ -43,51 +43,12 @@
                                     fill="currentColor"/>
                             </svg>
                         </span>
-                        <input type="text" data-kt-role-table-filter="search"
+                        <input type="text" data-kt-role-table-filter="search" id="search_txt"
                                class="form-control form-control-solid w-250px ps-14" placeholder="Search role"/>
                     </div>
                 </div>
                 <div class="card-toolbar">
                     <div class="d-flex justify-content-end" data-kt-role-table-toolbar="base">
-                        <button type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click"
-                                data-kt-menu-placement="bottom-end">
-                            <span class="svg-icon svg-icon-2">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M19.0759 3H4.72777C3.95892 3 3.47768 3.83148 3.86067 4.49814L8.56967 12.6949C9.17923 13.7559 9.5 14.9582 9.5 16.1819V19.5072C9.5 20.2189 10.2223 20.7028 10.8805 20.432L13.8805 19.1977C14.2553 19.0435 14.5 18.6783 14.5 18.273V13.8372C14.5 12.8089 14.8171 11.8056 15.408 10.964L19.8943 4.57465C20.3596 3.912 19.8856 3 19.0759 3Z"
-                                        fill="currentColor"/>
-                                </svg>
-                            </span>
-                            Filter
-                        </button>
-                        <div class="menu menu-sub menu-sub-dropdown w-300px w-md-325px" data-kt-menu="true">
-                            <div class="px-7 py-5">
-                                <div class="fs-5 text-dark fw-bold">Filter Options</div>
-                            </div>
-                            <div class="separator border-gray-200"></div>
-                            <div class="px-7 py-5" data-kt-role-table-filter="form">
-                                <div class="mb-10">
-                                    <label class="form-label fs-6 fw-semibold">Status:</label>
-                                    <select class="form-select form-select-solid fw-bold" data-kt-select2="true"
-                                            data-placeholder="Select option" data-allow-clear="true"
-                                            data-kt-role-table-filter="role" data-hide-search="true">
-                                        <option></option>
-                                        <option value="1">Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button type="reset"
-                                            class="btn btn-light btn-active-light-primary fw-semibold me-2 px-6"
-                                            data-kt-menu-dismiss="true" data-kt-role-table-filter="reset">Reset
-                                    </button>
-                                    <button type="submit" class="btn btn-primary fw-semibold px-6"
-                                            data-kt-menu-dismiss="true" data-kt-role-table-filter="filter">Apply
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#kt_modal_add_role">
                             <span class="svg-icon svg-icon-2">
@@ -127,6 +88,13 @@
             event.preventDefault();
             let page = $(this).attr('href').split('page=')[1];
             getRoles(page)
+        });
+
+        $(document).on('keyup', '#search_txt', function (event) {
+            let search_txt = $(this).val();
+            if(search_txt.length > 3 || search_txt.length == 0){
+                getRoles()
+            }
         });
 
         $(document).on('click', '.edit_role', function (e) {
@@ -182,6 +150,7 @@
         });
 
         $(document).on('hidden.bs.modal', '#kt_modal_add_role', function (e) {
+            $('#kt_modal_add_role_form').attr('action',"{{ route('roles.store') }}");
             $(this)
                 .find("input,textarea").val('').end()
                 .find("select").each(function() {this.selectedIndex = 0;}).end()
@@ -190,7 +159,7 @@
 
         $(document).on('submit', '#kt_modal_add_role_form', function (event) {
             event.preventDefault();
-            let request_url = $(this).data('action');
+            let request_url = $(this).attr('action');
             var form = $(this)[0];
             var form_data = new FormData(form);
             $.ajax({
@@ -213,6 +182,7 @@
                         swal("Save!", res.message, "success");
                         $('#kt_modal_add_role').modal('hide');
                         $('#role_temp_div').show();
+                        $('#kt_modal_add_user_form').attr('action',"{{ route('roles.store') }}");
                     } else {
                         swal("Error", res.message, "error");
                     }
@@ -224,10 +194,12 @@
         });
 
         function getRoles(page = 1) {
+            let search_txt = $('#search_txt').val();
             $.ajax({
                 url: "{{ route('roles.index') }}",
                 data: {
                     'page': page,
+                    'search': search_txt,
                 },
                 beforeSend: function (xhr) {
                     Oee.blockUI({target: '#roles_table'});
@@ -254,7 +226,7 @@
                     Oee.unblockUI('#roles_table');
                 },
                 success: function (res) {
-                    $('#kt_modal_add_role_form').attr('data-action',"{{ route('roles.update') }}");
+                    $('#kt_modal_add_role_form').attr('action',"{{ route('roles.update') }}");
                     $('#role_id').val(res.data.id);
                     $('#name').val(res.data.name);
                     $('#kt_modal_add_role').modal('show');

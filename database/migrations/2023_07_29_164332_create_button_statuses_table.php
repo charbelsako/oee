@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('button_statuses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('device_id');
-            $table->unsignedTinyInteger('btn1');
-            $table->unsignedTinyInteger('btn2');
-            $table->unsignedTinyInteger('btn3');
-            $table->unsignedTinyInteger('btn4');
+            $table->unsignedTinyInteger('start');
+            $table->unsignedTinyInteger('pause');
+            $table->unsignedTinyInteger('inspection');
+            $table->unsignedTinyInteger('breakdown');
             $table->dateTime('registered_at');
             $table->string('unix_at');
             $table->timestamps();

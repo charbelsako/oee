@@ -18,7 +18,7 @@
         <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
             <div class="app-header-menu app-header-mobile-drawer align-items-stretch" data-kt-drawer="true" data-kt-drawer-name="app-header-menu" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="250px" data-kt-drawer-direction="end" data-kt-drawer-toggle="#kt_app_header_menu_toggle" data-kt-swapper="true" data-kt-swapper-mode="{default: 'append', lg: 'prepend'}" data-kt-swapper-parent="{default: '#kt_app_body', lg: '#kt_app_header_wrapper'}"></div>
             <div class="app-navbar flex-shrink-0">
-                <div class="app-navbar-item ms-1 ms-md-3">
+                {{--<div class="app-navbar-item ms-1 ms-md-3">
                     <a href="#" class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-30px h-30px w-md-40px h-md-40px" data-kt-menu-trigger="{default:'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
                         <span class="svg-icon theme-light-show svg-icon-2">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -91,7 +91,7 @@
                             </a>
                         </div>
                     </div>
-                </div>
+                </div>--}}
                 <div class="app-navbar-item ms-1 ms-md-3" id="kt_header_user_menu_toggle">
                     <div class="cursor-pointer symbol symbol-30px symbol-md-40px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
                         <img src="{{ asset('assets/media/oee-logo.png') }}" alt="user" />
@@ -111,15 +111,18 @@
                         </div>
                         <div class="separator my-2"></div>
                         <div class="menu-item px-5">
-                            <a href="javascript:;" class="menu-link px-5">My Profile</a>
+                            <a href="{{ route('users.profile.get') }}" class="menu-link px-5">My Profile</a>
                         </div>
-                        <div class="separator my-2"></div>
+                        {{--<div class="separator my-2"></div>
                         <div class="menu-item px-5 my-1">
                             <a href="javascript:;" class="menu-link px-5">Account Settings</a>
-                        </div>
+                        </div>--}}
                         <div class="separator my-2"></div>
                         <div class="menu-item px-5">
-                            <a href="javascript:;" class="menu-link px-5">Sign Out</a>
+                            <a href="javascript:;" onclick="event.preventDefault();document.getElementById('logoutForm').submit();" class="menu-link px-5">Sign Out</a>
+                            <form id="logoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
+                                {{ csrf_field() }}
+                            </form>
                         </div>
                     </div>
                 </div>

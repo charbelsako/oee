@@ -75,6 +75,30 @@
                                 <option>please choose country first</option>
                             </select>
                         </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Plus(millisecond)</label>
+                            <input type="text" name="plus_millisecond" id="plus_millisecond"
+                                   placeholder="Plus(millisecond)" value="{{ @$item->plus_millisecond }}"
+                                   class="form-control form-control-solid mb-3 mb-lg-0"/>
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Produced parts per hour</label>
+                            <input type="text" name="produced_parts_per_hour" id="produced_parts_per_hour"
+                                   placeholder="Produced parts per hour" value="{{ @$item->produced_parts_per_hour }}"
+                                   class="form-control form-control-solid mb-3 mb-lg-0"/>
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Second per pulse</label>
+                            <input type="text" name="second_per_pulse" id="second_per_pulse"
+                                   placeholder="Second per pulse" value="{{ @$item->second_per_pulse }}"
+                                   class="form-control form-control-solid mb-3 mb-lg-0"/>
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Pieces per pules</label>
+                            <input type="text" name="pieces_per_pules" id="pieces_per_pules"
+                                   placeholder="Pieces per pules" value="{{ @$item->pieces_per_pules }}"
+                                   class="form-control form-control-solid mb-3 mb-lg-0"/>
+                        </div>
                     </div>
                     <div class="text-center pt-15">
                         <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal"
