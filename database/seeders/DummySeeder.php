@@ -50,7 +50,7 @@ class DummySeeder extends Seeder
         // create device
         $device = Device::query()->firstOrCreate(
             ['project' => 'OEE','machine' => 'OEE','process' => 'OEE'],
-            ['uuid' => 'TE-ST1234', 'country_id' => $country1->id, 'city_id' => $city->id, 'timezone' => $city->timezone, 'version' => '1.0', 'status' => 202]);
+            ['uuid' => 'TE-ST1234', 'country_id' => $country1->id, 'city_id' => $city->id, 'timezone' => $city->timezone, 'version' => '1.0', 'status' => 202, 'plus_millisecond' => 10, 'produced_parts_per_hour' => 100, 'second_per_pulse' => 10, 'pieces_per_pulse' => 24]);
         // cache clear
         Artisan::call('cache:clear');
     }
