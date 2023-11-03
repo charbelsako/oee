@@ -91,8 +91,8 @@ class DeviceController extends Controller
             if ($temp) {
                 return response()->json([
                     'status' => true,
-                    'data' => $temp->uuid??'',
-                    'message' => $temp->uuid?'device already registered and active':'device already registered but inactive'
+                    'data' => $temp->uuid ?? '',
+                    'message' => $temp->uuid ? 'device already registered and active' : 'device already registered but inactive'
                 ]);
             }
         } else {
@@ -106,7 +106,7 @@ class DeviceController extends Controller
         return response()->json([
             'status' => (bool)$temp,
             'data' => [],
-            'message' => $temp?'Added Successfully!!':'Added Unsuccessfully!!'
+            'message' => $temp?'Added Successfully!!' : 'Added Unsuccessfully!!'
         ]);
     }
 
