@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('plus_millisecond');
             $table->unsignedTinyInteger('produced_parts_per_hour');
             $table->unsignedTinyInteger('second_per_pulse');
-            $table->unsignedTinyInteger('pieces_per_pules');
+            $table->unsignedTinyInteger('pieces_per_pulse');
             $table->unsignedTinyInteger('status')->default(202)
                 ->comment('201=>running,202=>pause,203=>pause for checked,204=>pause for error');
             $table->timestamps();

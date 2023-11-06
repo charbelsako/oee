@@ -54,7 +54,7 @@ class StoreDeviceData implements ShouldQueue
      */
     public function handle()
     {
-        $second_per_pules = 5000;
+        $second_per_pulse = 5000;
         try{
             DB::beginTransaction();
             $pf = 1; // static ثابت حاليا حسب يوم 16/9
@@ -209,7 +209,7 @@ class StoreDeviceData implements ShouldQueue
                 Product::query()->create([
                     'device_id'=>$device_id,
                     'is_ok'=>1,
-                    'time'=>$second_per_pules,
+                    'time'=>$second_per_pulse,
                     'value'=>$ok,
                     'start'=>$start,
                     'pause'=>$pause,
@@ -223,7 +223,7 @@ class StoreDeviceData implements ShouldQueue
                 Product::query()->create([
                     'device_id'=>$device_id,
                     'is_ok'=>0,
-                    'time'=>$second_per_pules,
+                    'time'=>$second_per_pulse,
                     'value'=>$nok,
                     'start'=>$start,
                     'pause'=>$pause,

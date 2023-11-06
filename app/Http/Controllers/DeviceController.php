@@ -67,7 +67,7 @@ class DeviceController extends Controller
 //        check_user_has_not_permission('device_create');
         $device = false;
         $data = $request->only(['project','machine','process','version','country_id','city_id',
-                                'plus_millisecond','produced_parts_per_hour','second_per_pulse','pieces_per_pules']);
+                                'plus_millisecond','produced_parts_per_hour','second_per_pulse','pieces_per_pulse']);
         $temp = DeviceTemp::find($request->device_temp_id);
         if ($temp) {
             $device_uuid = explode('-',$temp->prefix);
@@ -87,7 +87,7 @@ class DeviceController extends Controller
             }
         }
         $success = (bool)$device;
-        $message = $device?'device create successfully':'device saved unsuccessfully';
+        $message = $device ? 'device create successfully' : 'device saved unsuccessfully';
         $response['success'] = $success;
         $response['message'] = $message;
         $response['data'] = [];
@@ -144,7 +144,7 @@ class DeviceController extends Controller
         $plus_millisecond = $device->plus_millisecond; // add to device setting
         $produced_parts_per_hour = $device->produced_parts_per_hour; // add to device setting
         $second_per_pulse = $device->second_per_pulse; // add to device setting
-        $pieces_per_pules = $device->pieces_per_pules; // add to device setting
+        $pieces_per_pulse = $device->pieces_per_pulse; // add to device setting
 
         $morning_shift_start = Carbon::parse('6:00')->format('H:i');
         $morning_shift_end = Carbon::parse('14:00')->format('H:i');
@@ -168,7 +168,7 @@ class DeviceController extends Controller
         $shift_start = strtotime($shift_start);
         $shift_end = strtotime($shift_end) + $plus_millisecond;
 
-        $cycle_time = $produced_parts_per_hour * $pieces_per_pules * 8; // add to config (seconds per pules * pieces per pules)
+        $cycle_time = $produced_parts_per_hour * $pieces_per_pulse * 8; // add to config (seconds per pulse * pieces per pulse)
         if ($request->filled('shift_work')) {
             $shift_work = $request->shift_work;
             $shift_year = $request->shift_year;
@@ -296,7 +296,7 @@ class DeviceController extends Controller
 //        check_user_has_not_permission('device_edit');
         $device = Device::find($request->device_id);
         $data = $request->only(['project','machine','process','version','country_id','city_id',
-                                'plus_millisecond','produced_parts_per_hour','second_per_pulse','pieces_per_pules']);
+                                'plus_millisecond','produced_parts_per_hour','second_per_pulse','pieces_per_pulse']);
 
         if ($request->filled('country_id')) {
             $data['timezone'] = Country::find($request->country_id)->timezone;

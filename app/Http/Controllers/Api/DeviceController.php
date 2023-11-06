@@ -34,12 +34,13 @@ class DeviceController extends Controller
         ]);
     }
 
+    // @TODO: this may not be needed
     public function deviceStatus(Request $request)
     {
         $mac_address = $request->mac_address;
         if ($request->filled('mac_address')) {
-            $temp = DeviceTemp::query()
-                ->where('mac_address',$mac_address)->first();
+            $temp = DeviceTemp::query()->where('mac_address',$mac_address)->first();
+            return response()->json(['data'=>$temp]);
             if (!$temp) {
                 return response()->json([
                     'status'  => false,
@@ -102,11 +103,11 @@ class DeviceController extends Controller
                 'message' => 'device_uuid or mac_address is empty'
             ]);
         }
-        $temp = DeviceTemp::query()->create(['mac_address'=>$mac_address,'prefix'=>$device_uuid]);
+        $temp = DeviceTemp::query()->create(['mac_address' => $mac_address, 'prefix' => $device_uuid]);
         return response()->json([
             'status' => (bool)$temp,
             'data' => [],
-            'message' => $temp?'Added Successfully!!' : 'Added Unsuccessfully!!'
+            'message' => $temp ? 'Added Successfully!!' : 'An error occurred while adding device'
         ]);
     }
 

@@ -94,9 +94,9 @@
                                    class="form-control form-control-solid mb-3 mb-lg-0"/>
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="required fw-semibold fs-6 mb-2">Pieces per pules</label>
-                            <input type="text" name="pieces_per_pules" id="pieces_per_pules"
-                                   placeholder="Pieces per pules" value="{{ @$item->pieces_per_pules }}"
+                            <label class="required fw-semibold fs-6 mb-2">Pieces per pulse</label>
+                            <input type="text" name="pieces_per_pulse" id="pieces_per_pulse"
+                                   placeholder="Pieces per pulse" value="{{ @$item->pieces_per_pulse }}"
                                    class="form-control form-control-solid mb-3 mb-lg-0"/>
                         </div>
                     </div>

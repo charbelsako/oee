@@ -297,7 +297,7 @@
                     $('#plus_millisecond').val(res.data.plus_millisecond);
                     $('#produced_parts_per_hour').val(res.data.produced_parts_per_hour);
                     $('#second_per_pulse').val(res.data.second_per_pulse);
-                    $('#pieces_per_pules').val(res.data.pieces_per_pules);
+                    $('#pieces_per_pulse').val(res.data.pieces_per_pulse);
                     $('#country_id').val(res.data.country_id);
                     getCityByCountryId(res.data.country_id,res.data.city_id);
                     $('#kt_modal_add_device').modal('show');

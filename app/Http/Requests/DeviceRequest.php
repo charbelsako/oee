@@ -38,7 +38,7 @@ class DeviceRequest extends FormRequest
                 'plus_millisecond'        => $rule_txt . '|numeric',
                 'produced_parts_per_hour' => $rule_txt . '|numeric',
                 'second_per_pulse'        => $rule_txt . '|numeric',
-                'pieces_per_pules'        => $rule_txt . '|numeric',
+                'pieces_per_pulse'        => $rule_txt . '|numeric',
         ];
     }
 }
