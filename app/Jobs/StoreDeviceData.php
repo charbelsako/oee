@@ -110,6 +110,7 @@ class StoreDeviceData implements ShouldQueue
 
             $product_nok = $notes[1];
             $product_nok = explode(',',$product_nok);
+            response()->json(['data'=>$product_nok]);
             foreach ($product_nok as $nok){
                 if ($nok > 0 && $pause == 0){
                     $start = 0; // 0 => on
@@ -117,7 +118,6 @@ class StoreDeviceData implements ShouldQueue
                     break;
                 }
             }
-
             ButtonStatus::query()->create([
                 'device_id'=>$device_id,
                 'start'=>$start,

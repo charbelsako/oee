@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "393e937198caaec2e88511cbc711616d",
+    "content-hash": "55dcf779dd68fc094f2c962a7b143434",
     "packages": [
         {
             "name": "brick/math",
@@ -1045,16 +1045,16 @@
         },
         {
             "name": "influxdata/influxdb-client-php",
-            "version": "3.3.0",
+            "version": "3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/influxdata/influxdb-client-php.git",
-                "reference": "80ee7e7fa455fe6321d24ac4f55c9596d43e08db"
+                "reference": "9db0d74595cbca08d9e2ce59814fc967c1b36531"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/influxdata/influxdb-client-php/zipball/80ee7e7fa455fe6321d24ac4f55c9596d43e08db",
-                "reference": "80ee7e7fa455fe6321d24ac4f55c9596d43e08db",
+                "url": "https://api.github.com/repos/influxdata/influxdb-client-php/zipball/9db0d74595cbca08d9e2ce59814fc967c1b36531",
+                "reference": "9db0d74595cbca08d9e2ce59814fc967c1b36531",
                 "shasum": ""
             },
             "require": {
@@ -1089,9 +1089,9 @@
             ],
             "support": {
                 "issues": "https://github.com/influxdata/influxdb-client-php/issues",
-                "source": "https://github.com/influxdata/influxdb-client-php/tree/3.3.0"
+                "source": "https://github.com/influxdata/influxdb-client-php/tree/3.4.0"
             },
-            "time": "2023-03-29T20:21:08+00:00"
+            "time": "2023-07-28T03:48:29+00:00"
         },
         {
             "name": "laravel/framework",

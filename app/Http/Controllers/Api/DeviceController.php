@@ -5,18 +5,22 @@ namespace App\Http\Controllers\Api;
 use App\Enums\Constants;
 use App\Http\Controllers\Controller;
 use App\Jobs\StoreDeviceData;
-use App\Models\AirFlow;
+// @NOTE: This will be changed to influx
+// use App\Models\AirFlow;
+// use App\Models\Temperature;
+// use App\Models\Humidity;
 use App\Models\ButtonStatus;
 use App\Models\Device;
 use App\Models\DeviceNote;
 use App\Models\DeviceTemp;
-use App\Models\Humidity;
-use App\Models\Temperature;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+
+use InfluxDB2\Client;
+use InfluxDB2\Model\WritePrecision;
+use InfluxDB2\Point;
 
 class DeviceController extends Controller
 {
@@ -24,7 +28,7 @@ class DeviceController extends Controller
     {
         return "*" . (int) (microtime(true) * 1000) . "#";
 
-
+        // @NOTE: this code is never reached
         $data['device_time'] = '*'.strtotime(Carbon::now()).'#';
         $data['device_time_milli'] = '*'.now()->getTimestampMs().'#';
         return response()->json([
@@ -158,16 +162,201 @@ class DeviceController extends Controller
         $unix_at = $request->time;
         $time = (int) $unix_at/1000;
         $time = Carbon::createFromTimestamp($time);
-//        $time = Carbon::now();
+    //    $time = Carbon::now();
 
         $notes = $request->notes;
         if ($request->has('notes') && $request->has('time') && Str::contains($notes,'T')
             && Str::contains($notes,'H') && Str::contains($notes,'V') && Str::contains($notes,'I')
             && Str::contains($notes,'A') && Str::contains($notes,'S') && Str::contains($notes,'O')
             && Str::contains($notes,'N')) {
-            Log::info("Start Calling Job");
-            dispatch((new StoreDeviceData($notes,$device_id,$time,$unix_at))->onQueue('store_device_data')->delay(Carbon::now()-> addSecond()));
-            Log::info("End Calling Job");
+            error_log("Start Calling Job");
+            try{
+                // @TODO: start transaction
+                $pf = 1; // static ثابت حاليا حسب يوم 16/9
+                DeviceNote::query()->create([
+                    'notes'=>$notes,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+
+                $notes = str_replace(['*','#'],'',$notes);
+                $notes = explode('S',$notes);
+                $notes = explode('T',$notes[1]);
+                $s_buttons = str_replace(',','',$notes[0]);
+                $s_buttons = decbin($s_buttons);
+                $start = Str::substr($s_buttons, 7, 1);
+                $pause = Str::substr($s_buttons, 6, 1);
+                $inspection = Str::substr($s_buttons, 5, 1);
+                $breakdown = Str::substr($s_buttons, 4, 1);
+
+                $notes = explode('H',$notes[1]);
+                $temperature = $notes[0];
+                $temperature = explode(',',$temperature);
+
+                $notes = explode('V',$notes[1]);
+                $humidity = $notes[0];
+                $humidity = explode(',',$humidity);
+
+                $notes = explode('I',$notes[1]);
+                $volt = $notes[0];
+                $volt = explode(',',$volt);
+
+                $notes = explode('A',$notes[1]);
+                $current = $notes[0];
+                $current = explode(',',$current);
+
+                $notes = explode('O',$notes[1]);
+                $airflow = $notes[0];
+                $airflow = explode(',',$airflow);
+
+                $notes = explode('N',$notes[1]);
+                $product_ok = $notes[0];
+                $product_ok = explode(',',$product_ok);
+                foreach ($product_ok as $ok){
+                    if ($ok > 0 && $pause == 0){
+                        $start = 0; // 0 => on
+                        $pause = 1; // 1 => off
+                        break;
+                    }
+                }
+
+            $product_nok = $notes[1];
+            $product_nok = explode(',',$product_nok);
+            response()->json(['data'=>$product_nok]);
+            foreach ($product_nok as $nok){
+                if ($nok > 0 && $pause == 0){
+                    $start = 0; // 0 => on
+                    $pause = 1; // 1 => off
+                    break;
+                }
+            }
+            ButtonStatus::query()->create([
+                'device_id'=>$device_id,
+                'start'=>$start,
+                'pause'=>$pause,
+                'inspection'=>$inspection,
+                'breakdown'=>$breakdown,
+                'registered_at'=>$time,
+                'unix_at'=>$unix_at,
+            ]);
+            foreach ($temperature as $temp){
+                Temperature::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$temperature[0],
+                    'value'=>$temp,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+            }
+            foreach ($humidity as $hum){
+                Humidity::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$humidity[0],
+                    'value'=>$hum,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+            }
+            foreach ($volt as $vol){
+                Volt::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$volt[0],
+                    'value'=>$vol,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+            }
+            foreach ($current as $i_cur=>$cur){
+                Current::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$current[0],
+                    'value'=>$cur,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+                $vol_n = $volt[$i_cur];
+                $power_value = $pf * $cur * $vol_n;
+                Power::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$current[0],
+                    'value'=>$power_value,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+            }
+            foreach ($airflow as $air){
+                AirFlow::query()->create([
+                    'device_id'=>$device_id,
+                    'time'=>$airflow[0],
+                    'value'=>$air,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+            }
+            foreach ($product_ok as $ok){
+                Product::query()->create([
+                    'device_id'=>$device_id,
+                    'is_ok'=>1,
+                    'time'=>$second_per_pulse,
+                    'value'=>$ok,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+            }
+            foreach ($product_nok as $nok){
+                Product::query()->create([
+                    'device_id'=>$device_id,
+                    'is_ok'=>0,
+                    'time'=>$second_per_pulse,
+                    'value'=>$nok,
+                    'start'=>$start,
+                    'pause'=>$pause,
+                    'inspection'=>$inspection,
+                    'breakdown'=>$breakdown,
+                    'registered_at'=>$time,
+                    'unix_at'=>$unix_at,
+                ]);
+            }
+
+            // @TODO: commit data
+            error_log('Added Successfully!');
+        } catch (\Exception $exception){
+            // @TODO rollback??
+            error_log('Catch Start');
+            error_log($exception);
+            error_log('Catch End');
+        }
+
+        // dispatch((new StoreDeviceData($notes,$device_id,$time,$unix_at))->onQueue('store_device_data')->delay(Carbon::now()-> addSecond()));
+        error_log("End Calling Job");
 
             return response()->json([
                 'status' => true,
@@ -179,7 +368,7 @@ class DeviceController extends Controller
             return response()->json([
                     'status' => false,
                     'data' => [],
-                    'message' => 'Added Unsuccessfully!!'
+                    'message' => 'Something went wrong!!'
             ]);
         }
     }
