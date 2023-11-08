@@ -35,3 +35,17 @@ if (!function_exists("generate_new_device_uuid_code")) {
         return $uuid;
     }
 }
+
+function find_pattern($string, $value) {
+    $pattern = '/'.$value.'[0-9,.]*/i';
+    $matches = array();
+    preg_match($pattern, $string, $matches);
+    $matches = str_replace($value, '', $matches[0]);
+    $result = explode(',', $matches);
+    $result = array_filter($result, function($value) {
+        if ($value !== '') {
+            return $value;
+        }
+    });
+    return $result;
+}
