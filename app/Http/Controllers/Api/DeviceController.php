@@ -202,8 +202,59 @@ class DeviceController extends Controller
                 $point->addTag('box_number', $device_uuid);
                 $point->time(time());
 
+                $writeApi->write($point);
+
+                $point = Point::measurement('volts');
+                $point->addField('period', $volt_matches[0]);
+                array_shift($volt_matches);
+                $point->addField('volt', join(',', $volt_matches));
+                $point->addTag('box_number', $device_uuid);
+                $point->time(time());
 
                 $writeApi->write($point);
+
+                $point = Point::measurement('intensity');
+                $point->addField('period', $intensity_matches[0]);
+                array_shift($intensity_matches);
+                $point->addField('intensity', join(',', $intensity_matches));
+                $point->addTag('box_number', $device_uuid);
+                $point->time(time());
+
+                $writeApi->write($point);
+
+                $point = Point::measurement('airflow');
+                $point->addField('period', $airflow_matches[0]);
+                array_shift($airflow_matches);
+                $point->addField('airflow', join(',', $airflow_matches));
+                $point->addTag('box_number', $device_uuid);
+                $point->time(time());
+
+                $writeApi->write($point);
+
+                $point = Point::measurement('ok_products');
+                $point->addField('period', '5000');
+                $point->addField('ok_products', $ok_matches[0]);
+                $point->addTag('box_number', $device_uuid);
+                $point->time(time());
+
+                $writeApi->write($point);
+
+                // $point = Point::measurement('volts');
+                // $point->addField('period', $volt_matches[0]);
+                // array_shift($volt_matches);
+                // $point->addField('volt', join(',', $volt_matches));
+                // $point->addTag('box_number', $device_uuid);
+                // $point->time(time());
+
+                // $writeApi->write($point);
+
+                error_log("End Calling Job");
+
+                return response()->json([
+                    'status' => true,
+                    'data' => [],
+                    'message' => 'Added Successfully!!'
+                ]);
 
                 $client->close();
         } catch (\Exception $exception){
@@ -212,16 +263,6 @@ class DeviceController extends Controller
             error_log($exception);
             error_log('Catch End');
         }
-
-        // dispatch((new StoreDeviceData($notes,$device_id,$time,$unix_at))->onQueue('store_device_data')->delay(Carbon::now()-> addSecond()));
-        error_log("End Calling Job");
-
-            return response()->json([
-                'status' => true,
-                'data' => [],
-                'message' => 'Added Successfully!!'
-            ]);
-
         } else {
             return response()->json([
                     'status' => false,

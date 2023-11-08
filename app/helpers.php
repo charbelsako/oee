@@ -43,9 +43,7 @@ function find_pattern($string, $value) {
     $matches = str_replace($value, '', $matches[0]);
     $result = explode(',', $matches);
     $result = array_filter($result, function($value) {
-        if ($value !== '') {
-            return $value;
-        }
+        return ($value !== '');
     });
     return $result;
 }
