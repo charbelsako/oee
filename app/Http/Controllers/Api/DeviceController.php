@@ -176,8 +176,6 @@ class DeviceController extends Controller
                 $ok_matches = find_pattern($notes, 'O');
                 $not_ok_matches = find_pattern($notes, 'N');
 
-                // return response()->json(['data'=>$temperature_matches]);
-
                 // ButtonStatus::query()->create([
                 //     'device_id'=>$device_id,
                 //     'start'=>$start,
