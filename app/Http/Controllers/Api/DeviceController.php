@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 use InfluxDB2\Client;
 use InfluxDB2\Model\WritePrecision;
@@ -148,6 +149,7 @@ class DeviceController extends Controller
             && Str::contains($notes,'N')
             ) {
             try{
+                DB::beginTransaction();
                 $client = new Client([
                     'url' => env('INFLUXDB_HOST'),
                     'token' => env('INFLUXDB_TOKEN'),
@@ -168,6 +170,16 @@ class DeviceController extends Controller
                 $notes = str_replace(['*', '#'],'',$notes);
 
                 $status_matches = find_pattern($notes, 'S');
+
+                $s_buttons = $status_matches[0];
+
+                $s_buttons = decbin($s_buttons);
+
+                $start = $s_buttons & 1;
+                $pause = ($s_buttons >> 1) & 1;
+                $inspection = ($s_buttons >> 2) & 1;
+                $breakdown = ($s_buttons >> 3) & 1;
+
                 $temperature_matches = find_pattern($notes, 'T');
                 $volt_matches = find_pattern($notes, 'V');
                 $humidity_matches = find_pattern($notes, 'H');
@@ -176,6 +188,7 @@ class DeviceController extends Controller
                 $ok_matches = find_pattern($notes, 'O');
                 $not_ok_matches = find_pattern($notes, 'N');
 
+                return response()->json(['x'=>true]);
                 // ButtonStatus::query()->create([
                 //     'device_id'=>$device_id,
                 //     'start'=>$start,
@@ -185,6 +198,15 @@ class DeviceController extends Controller
                 //     'registered_at'=>$time,
                 //     'unix_at'=>$unix_at,
                 // ]);
+
+                $point = Point::measurement('status_buttons');
+                $point->addField('start', $start);
+                $point->addField('pause', $pause);
+                $point->addField('inspection', $inspection);
+                $point->addField('breakdown', $breakdown);
+                $point->addTag('box_number', $device_uuid);
+
+                $writeApi->write($point);
 
                 $point = Point::measurement('temperature');
                 $point->addField('period', $temperature_matches[0]);
@@ -239,14 +261,13 @@ class DeviceController extends Controller
 
                 $writeApi->write($point);
 
-                // $point = Point::measurement('volts');
-                // $point->addField('period', $volt_matches[0]);
-                // array_shift($volt_matches);
-                // $point->addField('volt', join(',', $volt_matches));
-                // $point->addTag('box_number', $device_uuid);
-                // $point->time(time());
+                $point = Point::measurement('not_ok_products');
+                $point->addField('period', '5000');
+                $point->addField('not_ok_products', $ok_matches[0]);
+                $point->addTag('box_number', $device_uuid);
+                $point->time(time());
 
-                // $writeApi->write($point);
+                $writeApi->write($point);
 
                 error_log("End Calling Job");
 
@@ -256,9 +277,10 @@ class DeviceController extends Controller
                     'message' => 'Added Successfully!!'
                 ]);
 
+                DB::commit();
                 $client->close();
         } catch (\Exception $exception){
-            // @TODO rollback??
+            DB::rollback();
             error_log('Catch Start');
             error_log($exception);
             error_log('Catch End');
