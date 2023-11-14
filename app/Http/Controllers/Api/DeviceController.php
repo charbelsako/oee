@@ -188,17 +188,6 @@ class DeviceController extends Controller
                 $ok_matches = find_pattern($notes, 'O');
                 $not_ok_matches = find_pattern($notes, 'N');
 
-                return response()->json(['x'=>true]);
-                // ButtonStatus::query()->create([
-                //     'device_id'=>$device_id,
-                //     'start'=>$start,
-                //     'pause'=>$pause,
-                //     'inspection'=>$inspection,
-                //     'breakdown'=>$breakdown,
-                //     'registered_at'=>$time,
-                //     'unix_at'=>$unix_at,
-                // ]);
-
                 $point = Point::measurement('status_buttons');
                 $point->addField('start', $start);
                 $point->addField('pause', $pause);
