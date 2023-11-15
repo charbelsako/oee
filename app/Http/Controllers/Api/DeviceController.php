@@ -24,63 +24,6 @@ class DeviceController extends Controller
     public function microtime(Request $request)
     {
         return "*" . (int) (microtime(true) * 1000) . "#";
-
-        // @NOTE: this code is never reached
-        $data['device_time'] = '*'.strtotime(Carbon::now()).'#';
-        $data['device_time_milli'] = '*'.now()->getTimestampMs().'#';
-        return response()->json([
-            'status' => true,
-            'data' => $data,
-            'message' => 'device config'
-        ]);
-    }
-
-    // @TODO: this may not be needed
-    public function deviceStatus(Request $request)
-    {
-        $mac_address = $request->mac_address;
-        if ($request->filled('mac_address')) {
-            $temp = DeviceTemp::query()->where('mac_address',$mac_address)->first();
-            return response()->json(['data'=>$temp]);
-            if (!$temp) {
-                return response()->json([
-                    'status'  => false,
-                    'data'    => [],
-                    'message' => 'device not registered!'
-                ]);
-            }
-            if ($temp->uuid && $temp->status == Constants::getIdByName('added')) {
-                return response()->json([
-                    'status'  => true,
-                    'data'    => $temp->uuid,
-                    'message' => 'device already registered!'
-                ]);
-            }
-            $device_uuid = explode('-',$temp->device_uuid);
-            $first = @$device_uuid[0];
-            $second = @$device_uuid[1];
-            if ($first && $second) {
-                $uuid = generate_new_device_uuid_code($first,$second);
-                $temp->update(['uuid'=>$uuid,]);
-                return response()->json([
-                    'status' => (bool)$temp,
-                    'data' => $temp->uuid??[],
-                    'message' => 'Added Successfully!!'
-                ]);
-            }else{
-                return response()->json([
-                    'status' => false,
-                    'data' => [],
-                    'message' => 'prefix invalid'
-                ]);
-            }
-        } else {
-            return response()->json([
-                'status' => false,
-                'data' => [],
-                'message' => 'mac_address is empty'
-            ]);
-        }
     }
 
     public function storeDevice(Request $request)
