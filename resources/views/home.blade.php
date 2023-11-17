@@ -7,33 +7,49 @@
 @endsection
 
 @section('content')
-    <div>
-        @foreach ($records as $record)
-            <li>
-                @foreach ($record as $value)
-                    {{ $value . '->' }}
-                @endforeach
-            </li>
-        @endforeach
-    </div>
+    <script></script>
     <div id="myChart"></div>
     <!-- Add this script after including Chartist.js -->
     <script>
-        // Sample data
-        var data = {
-            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-            series: [
-                [5, 2, 4, 8, 3]
-            ]
-        };
+        async function loadData() {
 
-        // Options for the chart
-        var options = {
-            // Add your chart options here
-        };
+            try {
+                let returnData = await fetch('/api/get-data')
+                let jsonData = await returnData.json();
+                // @TODO: Separate all data points by their respective periods
+                data = []
+                let labels = [];
+                for (let key in jsonData) {
+                    const points = jsonData[key].celsius.split(',')
+                    data.push(...points);
+                    const period = jsonData[key].period;
+                    const date = new Date(key);
+                    labels.push(date)
+                    for (let i = 1; i < points.length; i += 1) {
+                        const newDate = new Date();
+                        newDate.setSeconds(date.getSeconds() - period / 1000)
+                        labels.push(newDate);
+                    }
+                }
 
-        // Create a line chart
-        new Chartist.Line('#myChart', data, options);
+
+                var data = {
+                    labels,
+                    series: [data]
+                };
+
+                // Options for the chart
+                var options = {
+                    // Add your chart options here
+                };
+
+                // Create a line chart
+                new Chartist.Line('#myChart', data, options);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        loadData();
     </script>
 
     <style>
