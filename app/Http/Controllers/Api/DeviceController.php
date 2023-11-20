@@ -31,8 +31,8 @@ class DeviceController extends Controller
         $device_uuid = $request->device_uuid;
         $mac_address = $request->mac_address;
         if ($request->filled('device_uuid') && $request->filled('mac_address')) {
-            $temp = DeviceTemp::query()->where('prefix',$device_uuid)
-                ->where('mac_address',$mac_address)->first();
+            $temp = DeviceTemp::query()->where('prefix', $device_uuid)
+                ->where('mac_address', $mac_address)->first();
             if ($temp) {
                 return response()->json([
                     'status' => true,
@@ -49,7 +49,7 @@ class DeviceController extends Controller
         }
         $temp = DeviceTemp::query()->create(['mac_address' => $mac_address, 'prefix' => $device_uuid]);
         return response()->json([
-            'status' => (bool)$temp,
+            'status' => (bool) $temp,
             'data' => [],
             'message' => $temp ? 'Added Successfully!!' : 'An error occurred while adding device'
         ]);
@@ -58,14 +58,14 @@ class DeviceController extends Controller
     public function store(Request $request)
     {
         $device_uuid = $request->header('X-Apikey');
-        if (empty($device_uuid)){
+        if (empty($device_uuid)) {
             return response()->json([
                 'status' => false,
                 'data' => [],
                 'message' => 'device unsupported'
             ]);
         }
-        $device = Device::query()->where('uuid',$device_uuid)->first();
+        $device = Device::query()->where('uuid', $device_uuid)->first();
         if (!$device) {
             return response()->json([
                 'status' => false,
@@ -76,22 +76,23 @@ class DeviceController extends Controller
 
         $device_id = $device->id;
         $unix_at = $request->time;
-        $time = (int) $unix_at/1000;
+        $time = (int) $unix_at / 1000;
         $time = Carbon::createFromTimestamp($time);
 
         $notes = $request->notes;
-        if ($request->has('notes')
+        if (
+            $request->has('notes')
             && $request->has('time')
-            && Str::contains($notes,'T')
-            && Str::contains($notes,'H')
-            && Str::contains($notes,'V')
-            && Str::contains($notes,'I')
-            && Str::contains($notes,'A')
-            && Str::contains($notes,'S')
-            && Str::contains($notes,'O')
-            && Str::contains($notes,'N')
-            ) {
-            try{
+            && Str::contains($notes, 'T')
+            && Str::contains($notes, 'H')
+            && Str::contains($notes, 'V')
+            && Str::contains($notes, 'I')
+            && Str::contains($notes, 'A')
+            && Str::contains($notes, 'S')
+            && Str::contains($notes, 'O')
+            && Str::contains($notes, 'N')
+        ) {
+            try {
                 DB::beginTransaction();
                 $client = new Client([
                     'url' => env('INFLUXDB_HOST'),
@@ -105,12 +106,12 @@ class DeviceController extends Controller
 
                 $pf = 1; // static ثابت حاليا حسب يوم 16/9
                 DeviceNote::query()->create([
-                    'notes'=>$notes,
-                    'registered_at'=>$time,
-                    'unix_at'=>$unix_at,
+                    'notes' => $notes,
+                    'registered_at' => $time,
+                    'unix_at' => $unix_at,
                 ]);
 
-                $notes = str_replace(['*', '#'],'',$notes);
+                $notes = str_replace(['*', '#'], '', $notes);
 
                 $status_matches = find_pattern($notes, 'S');
 
@@ -203,25 +204,27 @@ class DeviceController extends Controller
 
                 error_log("End Calling Job");
 
+
+
+                DB::commit();
+                $client->close();
+
                 return response()->json([
                     'status' => true,
                     'data' => [],
                     'message' => 'Added Successfully!!'
                 ]);
-
-                DB::commit();
-                $client->close();
-        } catch (\Exception $exception){
-            DB::rollback();
-            error_log('Catch Start');
-            error_log($exception);
-            error_log('Catch End');
-        }
+            } catch (\Exception $exception) {
+                DB::rollback();
+                error_log('Catch Start');
+                error_log($exception);
+                error_log('Catch End');
+            }
         } else {
             return response()->json([
-                    'status' => false,
-                    'data' => [],
-                    'message' => 'Something went wrong!!'
+                'status' => false,
+                'data' => [],
+                'message' => 'Something went wrong!!'
             ]);
         }
     }
