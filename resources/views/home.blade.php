@@ -7,16 +7,31 @@
 @endsection
 
 @section('content')
-    <script></script>
+    <div class="row align-items-center m-5">
+        <div class="col-3 text-center">
+            <label for="uuid">Choose Device: </label>
+        </div>
+        <div class="col-6">
+            <select name="uuid" id="uuid" class="form-select m-5">
+                @foreach ($devices as $device)
+                    <option value="{{ $device->uuid }}">{{ $device->uuid }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-3">
+            <button onClick="loadData()" class="btn btn-info">Load</button>
+        </div>
+    </div>
+
     <div id="myChart"></div>
     <!-- Add this script after including Chartist.js -->
     <script>
         async function loadData() {
-
             try {
-                let returnData = await fetch('/api/get-data')
+                const deviceId = document.querySelector('#uuid').value;
+                let returnData = await fetch(`/api/get-data?uuid=${deviceId}`)
                 let jsonData = await returnData.json();
-                // @TODO: Separate all data points by their respective periods
+
                 data = []
                 let labels = [];
                 for (let key in jsonData) {
@@ -49,7 +64,6 @@
                 console.error(err);
             }
         }
-        loadData();
     </script>
 
     <style>

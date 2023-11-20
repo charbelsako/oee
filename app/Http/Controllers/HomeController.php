@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 // use App\Models\Report;
+use App\Models\Device;
 use Illuminate\Http\Request;
 use Rap2hpoutre\FastExcel\FastExcel;
 
@@ -25,7 +26,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $result = Device::query()->select('uuid')->get();
+        return view('home', ['devices' => $result]);
     }
 
     public function testing()

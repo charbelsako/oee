@@ -20,9 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/store', [DeviceController::class,'store'])->name('post.store');
-Route::post('/store/device', [DeviceController::class,'storeDevice'])->name('post.store.device');
-// @TODO: May not be needed
-Route::post('/device/status', [DeviceController::class,'deviceStatus'])->name('post.device.status');
-Route::post('/microtime', [DeviceController::class,'microtime'])->name('get.microtime');
-Route::get('/get-data', [DataApiController::class,'getData'])->name('get.data');
+Route::post('/store', [DeviceController::class, 'store'])->name('post.store');
+Route::post('/store/device', [DeviceController::class, 'storeDevice'])->name('post.store.device');
+Route::post('/microtime', [DeviceController::class, 'microtime'])->name('get.microtime');
+Route::get('/get-data', [DataApiController::class, 'getData'])->name('get.data');
+// @TODO add api for specific data points? like temperature and airflow etc.
