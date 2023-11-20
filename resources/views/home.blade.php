@@ -23,7 +23,12 @@
         </div>
     </div>
 
-    <div id="myChart"></div>
+    <div id="temperatureChart">
+        <h1>Temperature Chart</h1>
+    </div>
+    <div id="voltageChart">
+        <h1>Voltage Chart</h1>
+    </div>
     <!-- Add this script after including Chartist.js -->
     <script>
         async function loadData() {
@@ -39,7 +44,7 @@
                     data.push(...points);
                     const period = jsonData[key].period;
                     const date = new Date(key);
-                    labels.push(date)
+                    labels.push(date.toDateString())
                     for (let i = 1; i < points.length; i += 1) {
                         const newDate = new Date();
                         newDate.setSeconds(date.getSeconds() - period / 1000)
@@ -47,30 +52,28 @@
                     }
                 }
 
-
                 var data = {
                     labels,
                     series: [data]
                 };
 
-                // Options for the chart
                 var options = {
-                    // Add your chart options here
+                    width: '700px',
+                    height: '300px',
                 };
 
-                // Create a line chart
-                new Chartist.Line('#myChart', data, options);
+                new Chartist.Line('#temperatureChart', data, options);
             } catch (err) {
                 console.error(err);
             }
         }
+        loadData();
     </script>
 
     <style>
-        #myChart {
-            width: 100%;
-            height: 300px;
-            /* Set a fixed height or adjust as needed */
+        #temperatureChart {
+            width: 700px;
+            height: 350px;
         }
     </style>
     {{-- <div class="container">
