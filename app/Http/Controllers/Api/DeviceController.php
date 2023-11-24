@@ -99,7 +99,7 @@ class DeviceController extends Controller
                     'token' => env('INFLUXDB_TOKEN'),
                     'bucket' => env('INFLUXDB_BUCKET'),
                     'org' => env('INFLUXDB_ORG'),
-                    'precision' => WritePrecision::S,
+                    'precision' => WritePrecision::MS,
                     'verifySSL' => false
                 ]);
                 $writeApi = $client->createWriteApi();
@@ -110,6 +110,8 @@ class DeviceController extends Controller
                     'registered_at' => $time,
                     'unix_at' => $unix_at,
                 ]);
+
+                $started_at = $unix_at - 5000;
 
                 $notes = str_replace(['*', '#'], '', $notes);
 
@@ -138,73 +140,71 @@ class DeviceController extends Controller
                 $point->addField('inspection', $inspection);
                 $point->addField('breakdown', $breakdown);
                 $point->addTag('box_number', $device_uuid);
+                $point->time($unix_at);
 
                 $writeApi->write($point);
 
-                $point = Point::measurement('temperature');
-                $point->addField('period', $temperature_matches[0]);
-                array_shift($temperature_matches);
-                $point->addField('celsius', join(',', $temperature_matches));
-                $point->addTag('box_number', $device_uuid);
-                $point->time(time());
+                for ($i = 1; $i < sizeof($temperature_matches); $i++) {
+                    $point = Point::measurement('temperature');
+                    $point->addField('celsius', (int) $temperature_matches[$i]);
+                    $point->addTag('box_number', $device_uuid);
+                    $point->time($started_at + $i * $temperature_matches[0]);
 
-                $writeApi->write($point);
+                    $writeApi->write($point);
+                }
 
-                $point = Point::measurement('humidity');
-                $point->addField('period', $humidity_matches[0]);
-                array_shift($humidity_matches);
-                $point->addField('humidity', join(',', $humidity_matches));
-                $point->addTag('box_number', $device_uuid);
-                $point->time(time());
+                for ($i = 1; $i < sizeof($humidity_matches); $i++) {
+                    $point = Point::measurement('humidity');
+                    $point->addField('humidity', (int) $humidity_matches[$i]);
+                    $point->addTag('box_number', $device_uuid);
+                    $point->time($started_at + $i * $humidity_matches[0]);
 
-                $writeApi->write($point);
+                    $writeApi->write($point);
+                }
 
-                $point = Point::measurement('volts');
-                $point->addField('period', $volt_matches[0]);
-                array_shift($volt_matches);
-                $point->addField('volt', join(',', $volt_matches));
-                $point->addTag('box_number', $device_uuid);
-                $point->time(time());
+                for ($i = 1; $i < sizeof($volt_matches); $i++) {
+                    $point = Point::measurement('voltage')
+                        ->addField('volt', (int) $volt_matches[$i])
+                        ->addTag('box_number', $device_uuid)
+                        ->time($started_at + $i * $volt_matches[0]);
 
-                $writeApi->write($point);
+                    $writeApi->write($point);
+                }
 
-                $point = Point::measurement('intensity');
-                $point->addField('period', $intensity_matches[0]);
-                array_shift($intensity_matches);
-                $point->addField('intensity', join(',', $intensity_matches));
-                $point->addTag('box_number', $device_uuid);
-                $point->time(time());
 
-                $writeApi->write($point);
+                for ($i = 1; $i < sizeof($intensity_matches); $i++) {
+                    $point = Point::measurement('intensity');
+                    $point->addField('intensity', (int) $intensity_matches[$i]);
+                    $point->addTag('box_number', $device_uuid);
+                    $point->time($started_at + $i * $intensity_matches[0]);
 
-                $point = Point::measurement('airflow');
-                $point->addField('period', $airflow_matches[0]);
-                array_shift($airflow_matches);
-                $point->addField('airflow', join(',', $airflow_matches));
-                $point->addTag('box_number', $device_uuid);
-                $point->time(time());
+                    $writeApi->write($point);
+                }
 
-                $writeApi->write($point);
+                for ($i = 1; $i < sizeof($airflow_matches); $i++) {
+                    $point = Point::measurement('airflow');
+                    $point->addField('airflow', (int) $airflow_matches[$i]);
+                    $point->addTag('box_number', $device_uuid);
+                    $point->time($started_at + $i * $airflow_matches[0]);
+
+                    $writeApi->write($point);
+                }
 
                 $point = Point::measurement('ok_products');
                 $point->addField('period', '5000');
-                $point->addField('ok_products', $ok_matches[0]);
+                $point->addField('ok_products', (int) $ok_matches[0]);
                 $point->addTag('box_number', $device_uuid);
-                $point->time(time());
+                $point->time($unix_at);
 
                 $writeApi->write($point);
 
                 $point = Point::measurement('not_ok_products');
                 $point->addField('period', '5000');
-                $point->addField('not_ok_products', $ok_matches[0]);
+                $point->addField('not_ok_products', (int) $not_ok_matches[0]);
                 $point->addTag('box_number', $device_uuid);
-                $point->time(time());
+                $point->time($unix_at);
 
                 $writeApi->write($point);
-
-                error_log("End Calling Job");
-
-
 
                 DB::commit();
                 $client->close();
@@ -217,7 +217,7 @@ class DeviceController extends Controller
             } catch (\Exception $exception) {
                 DB::rollback();
                 error_log('Catch Start');
-                error_log($exception);
+                Log::info($exception);
                 error_log('Catch End');
             }
         } else {

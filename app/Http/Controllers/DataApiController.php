@@ -20,11 +20,11 @@ class DataApiController extends Controller
             'token' => env('INFLUXDB_TOKEN'),
             'bucket' => env('INFLUXDB_BUCKET'),
             'org' => env('INFLUXDB_ORG'),
-            'precision' => WritePrecision::S,
+            'precision' => WritePrecision::MS,
             'verifySSL' => false
         ]);
         $queryApi = $client->createQueryApi();
-        $query = "from(bucket: \"oee_test\") |> range(start: -9d) |> filter(fn: (r) => r._measurement == \"temperature\" and r.box_number == \"$device\")";
+        $query = "from(bucket: \"oee_test\") |> range(start: -11d) |> filter(fn: (r) => r._measurement == \"temperature\" and r.box_number == \"$device\")";
         $temperature_data = $queryApi->query($query);
 
         $records = [];
