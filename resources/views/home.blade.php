@@ -1,9 +1,10 @@
 @extends('layouts._layout')
 @section('js')
-    <script src="{{ asset('assets/js/chartist.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" referrerpolicy="no-referrer">
+    </script>
 @endsection
 @section('css')
-    <link rel="stylesheet" href="{{ asset('assets/css/chartist.min.css') }}" />
 @endsection
 
 @section('content')
@@ -23,11 +24,11 @@
         </div>
     </div>
 
-    <div id="temperatureChart">
-        <h1>Temperature Chart</h1>
-    </div>
+    <h1>Temperature Chart</h1>
+    <canvas id="temperatureChart" width="700" height="400">
+    </canvas>
+    <h1>Voltage Chart</h1>
     <div id="voltageChart">
-        <h1>Voltage Chart</h1>
     </div>
     <!-- Add this script after including Chartist.js -->
     <script>
@@ -39,30 +40,43 @@
 
                 data = []
                 let labels = [];
-                for (let key in jsonData) {
-                    const points = jsonData[key].celsius.split(',')
-                    data.push(...points);
-                    const period = jsonData[key].period;
-                    const date = new Date(key);
-                    labels.push(date.toDateString())
-                    for (let i = 1; i < points.length; i += 1) {
-                        const newDate = new Date();
-                        newDate.setSeconds(date.getSeconds() - period / 1000)
-                        labels.push(newDate);
-                    }
+                for (let key in jsonData.temperature) {
+                    const temperature = jsonData.temperature[key].celsius
+                    const date = moment(key);
+                    labels.push(date.format('dddd MMM hh mm:ss'))
+                    data.push(temperature)
                 }
 
                 var data = {
                     labels,
-                    series: [data]
+                    datasets: [{
+                        label: 'Temperature',
+                        data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
                 };
 
-                var options = {
-                    width: '700px',
-                    height: '300px',
-                };
+                const options = {
+                    tooltip: {
+                        enabled: true,
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+                var ctx = document.getElementById('temperatureChart').getContext('2d');
 
-                new Chartist.Line('#temperatureChart', data, options);
+                if (window.myChart) {
+                    console.log('Destroying')
+                    window.myChart.destroy();
+                }
+
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: options
+                });
             } catch (err) {
                 console.error(err);
             }
@@ -76,23 +90,4 @@
             height: 350px;
         }
     </style>
-    {{-- <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
-
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    {{ __('You are logged in!') }}
-                </div>
-            </div>
-        </div>
-    </div>
-</div> --}}
 @endsection
