@@ -30,8 +30,10 @@
     <h1>Voltage Chart</h1>
     <div id="voltageChart">
     </div>
-    <!-- Add this script after including Chartist.js -->
+
     <script>
+        let intervalTimer;
+        let lastDataPoint;
         async function loadData() {
             try {
                 const deviceId = document.querySelector('#uuid').value;
@@ -45,8 +47,10 @@
                     const date = moment(key);
                     labels.push(date.format('dddd MMM hh mm:ss'))
                     data.push(temperature)
+                    lastDataPoint = key;
                 }
 
+                // @TODO: Extract this code to its own function maybe named draw chart
                 var data = {
                     labels,
                     datasets: [{
@@ -77,9 +81,23 @@
                     data: data,
                     options: options
                 });
+
+                // setTimeout(() => {
+                //     console.log('fetching again')
+                //     loadData();
+                // }, 5000);
+                getNewData();
             } catch (err) {
                 console.error(err);
             }
+        }
+
+        function getNewData() {
+            const deviceId = document.querySelector('#uuid').value
+            let returnData = await fetch(`/api/get-new-data?uuid=${deviceId}&startDate=${lastDataPoint}`)
+            let jsonData = await returnData.json();
+            // @TODO get data from the last end point's date
+            // const lastDate =
         }
         loadData();
     </script>

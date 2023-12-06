@@ -24,4 +24,5 @@ Route::post('/store', [DeviceController::class, 'store'])->name('post.store');
 Route::post('/store/device', [DeviceController::class, 'storeDevice'])->name('post.store.device');
 Route::post('/microtime', [DeviceController::class, 'microtime'])->name('get.microtime');
 Route::get('/get-data', [DataApiController::class, 'getData'])->name('get.data');
+Route::get('/get-new-data', [DataApiController::class, 'getNewData'])->name('get.data');
 // @TODO add api for specific data points? like temperature and airflow etc.
