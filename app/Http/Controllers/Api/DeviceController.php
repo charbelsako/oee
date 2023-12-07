@@ -146,7 +146,7 @@ class DeviceController extends Controller
 
                 for ($i = 1; $i < sizeof($temperature_matches); $i++) {
                     $point = Point::measurement('temperature');
-                    $point->addField('celsius', (int) $temperature_matches[$i]);
+                    $point->addField('celsius', (float) $temperature_matches[$i]);
                     $point->addTag('box_number', $device_uuid);
                     $point->time($started_at + $i * $temperature_matches[0]);
 
@@ -155,7 +155,7 @@ class DeviceController extends Controller
 
                 for ($i = 1; $i < sizeof($humidity_matches); $i++) {
                     $point = Point::measurement('humidity');
-                    $point->addField('humidity', (int) $humidity_matches[$i]);
+                    $point->addField('humidity', (float) $humidity_matches[$i]);
                     $point->addTag('box_number', $device_uuid);
                     $point->time($started_at + $i * $humidity_matches[0]);
 
@@ -164,7 +164,7 @@ class DeviceController extends Controller
 
                 for ($i = 1; $i < sizeof($volt_matches); $i++) {
                     $point = Point::measurement('voltage')
-                        ->addField('volt', (int) $volt_matches[$i])
+                        ->addField('volt', (float) $volt_matches[$i])
                         ->addTag('box_number', $device_uuid)
                         ->time($started_at + $i * $volt_matches[0]);
 
@@ -174,7 +174,7 @@ class DeviceController extends Controller
 
                 for ($i = 1; $i < sizeof($intensity_matches); $i++) {
                     $point = Point::measurement('intensity');
-                    $point->addField('intensity', (int) $intensity_matches[$i]);
+                    $point->addField('intensity', (float) $intensity_matches[$i]);
                     $point->addTag('box_number', $device_uuid);
                     $point->time($started_at + $i * $intensity_matches[0]);
 
@@ -183,7 +183,7 @@ class DeviceController extends Controller
 
                 for ($i = 1; $i < sizeof($airflow_matches); $i++) {
                     $point = Point::measurement('airflow');
-                    $point->addField('airflow', (int) $airflow_matches[$i]);
+                    $point->addField('airflow', (float) $airflow_matches[$i]);
                     $point->addTag('box_number', $device_uuid);
                     $point->time($started_at + $i * $airflow_matches[0]);
 
