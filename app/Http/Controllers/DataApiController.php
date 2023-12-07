@@ -74,12 +74,20 @@ class DataApiController extends Controller
             $query = "from(bucket: \"oee_test\") |> range(start: time(v: \"$startDate\"), stop: now()) |> filter(fn: (r) => r._measurement == \"intensity\" and r.box_number == \"$device\")";
             $current_data = $this->influxDBClientService->queryData($query);
 
+            $query = "from(bucket: \"oee_test\") |> range(start: time(v: \"$startDate\"), stop: now()) |> filter(fn: (r) => r._measurement == \"ok_products\" and r.box_number == \"$device\")";
+            $product_ok_data = $this->influxDBClientService->queryData($query);
+
+            $query = "from(bucket: \"oee_test\") |> range(start: time(v: \"$startDate\"), stop: now()) |> filter(fn: (r) => r._measurement == \"not_ok_products\" and r.box_number == \"$device\")";
+            $product_not_ok_data = $this->influxDBClientService->queryData($query);
+
             $data = [
                 'temperature' => $temperature_data,
                 'voltage' => $volt_data,
                 'humidity' => $humidity_data,
                 'intensity' => $current_data,
-                'airflow' => $airflow_data
+                'airflow' => $airflow_data,
+                'product_ok' => $product_ok_data,
+                'product_not_ok' => $product_not_ok_data,
             ];
             return response()->json($data);
         } catch (Exception $e) {
