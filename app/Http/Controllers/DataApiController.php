@@ -22,32 +22,36 @@ class DataApiController extends Controller
         try {
             $device = $request->input("uuid");
 
-            $queryApi = $this->influxDBClientService->createQueryApi();
             $query = "from(bucket: \"oee_test\") |> range(start: -13d) |> filter(fn: (r) => r._measurement == \"temperature\" and r.box_number == \"$device\")";
-            $temperature_data = $queryApi->query($query);
+            $temperature_data = $this->influxDBClientService->queryData($query);
 
-            $records = [];
-            foreach ($temperature_data as $table) {
-                foreach ($table->records as $record) {
-                    $row = key_exists($record->getTime(), $records) ? $records[$record->getTime()] : [];
-                    $records[$record->getTime()] = array_merge($row, [$record->getField() => $record->getValue()]);
-                }
-            }
+            $query = "from(bucket: \"oee_test\") |> range(start: -13d) |> filter(fn: (r) => r._measurement == \"humidity\" and r.box_number == \"$device\")";
+            $humidity_data = $this->influxDBClientService->queryData($query);
 
             $query = "from(bucket: \"oee_test\") |> range(start: -13d) |> filter(fn: (r) => r._measurement == \"voltage\" and r.box_number == \"$device\")";
-            $temperature_data = $queryApi->query($query);
-            $volt_data = $queryApi->query($query);
+            $volt_data = $this->influxDBClientService->queryData($query);
 
-            $volt_records = [];
-            foreach ($volt_data as $table) {
-                foreach ($table->records as $record) {
-                    $row = key_exists($record->getTime(), $volt_records) ? $volt_records[$record->getTime()] : [];
-                    $volt_records[$record->getTime()] = array_merge($row, [$record->getField() => $record->getValue()]);
-                }
-            }
+            $query = "from(bucket: \"oee_test\") |> range(start: -13d) |> filter(fn: (r) => r._measurement == \"intensity\" and r.box_number == \"$device\")";
+            $current_data = $this->influxDBClientService->queryData($query);
 
-            $data = ['temperature' => $records, 'voltage' => $volt_records];
-            Log::info($records);
+            $query = "from(bucket: \"oee_test\") |> range(start: -13d) |> filter(fn: (r) => r._measurement == \"airflow\" and r.box_number == \"$device\")";
+            $airflow_data = $this->influxDBClientService->queryData($query);
+
+            $query = "from(bucket: \"oee_test\") |> range(start: -13d) |> filter(fn: (r) => r._measurement == \"ok_products\" and r.box_number == \"$device\")";
+            $ok_products = $this->influxDBClientService->queryData($query);
+
+            $query = "from(bucket: \"oee_test\") |> range(start: -13d) |> filter(fn: (r) => r._measurement == \"not_ok_products\" and r.box_number == \"$device\")";
+            $not_ok_products = $this->influxDBClientService->queryData($query);
+
+            $data = [
+                'temperature' => $temperature_data,
+                'voltage' => $volt_data,
+                'humidity' => $humidity_data,
+                'intensity' => $current_data,
+                'airflow' => $airflow_data,
+                'ok_products' => $ok_products,
+                'not_ok_products' => $not_ok_products,
+            ];
             return response()->json($data);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
