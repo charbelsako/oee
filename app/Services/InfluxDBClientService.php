@@ -37,4 +37,18 @@ class InfluxDBClientService
   {
     return $this->client->createQueryApi();
   }
+
+  public function queryData(string $query)
+  {
+    $queryApi = $this->createQueryApi();
+    $data = $queryApi->query($query);
+    $records = [];
+    foreach ($data as $table) {
+      foreach ($table->records as $record) {
+        $row = key_exists($record->getTime(), $records) ? $records[$record->getTime()] : [];
+        $records[$record->getTime()] = array_merge($row, [$record->getField() => $record->getValue()]);
+      }
+    }
+    return $records;
+  }
 }
