@@ -23,6 +23,9 @@
     <link href="{{ asset('assets/plugins/toast/jquery.toast.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.2/dist/sweetalert2.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.2/dist/sweetalert2.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
     @yield('css')
     @stack('css')
     @yield('js')
