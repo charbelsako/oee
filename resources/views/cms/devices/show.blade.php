@@ -59,7 +59,6 @@
                 margin: 0 auto;
             }
         }
-
     </style>
 @endpush
 
@@ -142,13 +141,14 @@
                 <div class="row col-12">
                     <div class="card-title row">
                         <div class="col-2">
-                            <span class="h2">Filters</span>
+                            <span class="h2">From</span>
                         </div>
                         <div class="col-2">
                             <label for="year_id" class="form-control">Year:</label>
                             <select id="year_id" class="form-control">
-                                @for($y=2023;$y<2026;$y++)
-                                <option {{ date('Y') == $y?'selected':'' }} value="{{$y}}">{{$y}}</option>
+                                @for ($y = 2023; $y < 2026; $y++)
+                                    <option {{ date('Y') == $y ? 'selected' : '' }} value="{{ $y }}">
+                                        {{ $y }}</option>
                                 @endfor
                             </select>
                         </div>
@@ -167,21 +167,70 @@
                         <div class="col-2">
                             <label for="shift_id" class="form-control">Shift:</label>
                             <select id="shift_id" class="form-control">
-                                <option {{ date('H:i') >= '6:00' && date('H:i') <='14:00' ?'selected':'' }}
-                                        value="1">6:00 - 14:00</option>
-                                <option {{ date('H:i') >= '14:00' && date('H:i') <='22:00' ?'selected':'' }}
-                                        value="1">14:00 - 22:00</option>
-                                <option {{ date('H:i') >= '22:00' && date('H:i') <='6:00' ?'selected':'' }}
-                                        value="1">22:00 - 6:00</option>
+                                <option {{ date('H:i') >= '6:00' && date('H:i') <= '14:00' ? 'selected' : '' }}
+                                    value="1">
+                                    6:00 - 14:00</option>
+                                <option {{ date('H:i') >= '14:00' && date('H:i') <= '22:00' ? 'selected' : '' }}
+                                    value="1">14:00 - 22:00</option>
+                                <option {{ date('H:i') >= '22:00' && date('H:i') <= '6:00' ? 'selected' : '' }}
+                                    value="1">
+                                    22:00 - 6:00</option>
                             </select>
                         </div>
                         <div class="col-2">
                             <label for="live_id" class="form-control">Is live:</label>
                             <select id="live_id" class="form-control">
-                                <option {{ $is_live?'selected':'' }} value="1">Yes</option>
-                                <option {{ !$is_live?'selected':'' }} value="2">No</option>
+                                <option {{ $is_live ? 'selected' : '' }} value="1">Yes</option>
+                                <option {{ !$is_live ? 'selected' : '' }} value="2">No</option>
                             </select>
                         </div>
+                        <div class="col-2">
+                            <span class="h2">To:</span>
+                        </div>
+                        <div class="col-2">
+                            <label for="year_id2" class="form-control">Year:</label>
+                            <select id="year_id2" class="form-control">
+                                @for ($y = 2023; $y < 2026; $y++)
+                                    <option {{ date('Y') == $y ? 'selected' : '' }} value="{{ $y }}">
+                                        {{ $y }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <label for="month_id2" class="form-control">Month:</label>
+                            <select id="month_id2" class="form-control">
+                                <!-- Month options will be added dynamically here based on the year selection -->
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <label for="day_id2" class="form-control">Day:</label>
+                            <select id="day_id2" class="form-control">
+                                <!-- Day options will be added dynamically here based on the month selection -->
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <label for="shift_id2" class="form-control">Shift:</label>
+                            <select id="shift_id2" class="form-control">
+                                <option {{ date('H:i') >= '6:00' && date('H:i') <= '14:00' ? 'selected' : '' }}
+                                    value="1">
+                                    6:00 - 14:00</option>
+                                <option {{ date('H:i') >= '14:00' && date('H:i') <= '22:00' ? 'selected' : '' }}
+                                    value="1">14:00 - 22:00</option>
+                                <option {{ date('H:i') >= '22:00' && date('H:i') <= '6:00' ? 'selected' : '' }}
+                                    value="1">
+                                    22:00 - 6:00</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <label for="live_id2" class="form-control">Is live:</label>
+                            <select id="live_id2" class="form-control">
+                                <option {{ $is_live ? 'selected' : '' }} value="1">Yes</option>
+                                <option {{ !$is_live ? 'selected' : '' }} value="2">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body row">
+                        <div class="col-2"><button class="btn btn-info" onClick="fetchData()">Load</button></div>
                     </div>
                 </div>
             </div>
@@ -346,7 +395,8 @@
                             <span class="fw-semibold h1 text-gray-400">Ok/Nok</span>
                         </div>
                         <div class="m-0 col-5">
-                            <span class="fw-semibold badge badge-light-success fs-1">{{ $ok_parts . '/' . $nok_parts }}</span>
+                            <span
+                                class="fw-semibold badge badge-light-success fs-1">{{ $ok_parts . '/' . $nok_parts }}</span>
                         </div>
                     </div>
                 </div>
@@ -365,20 +415,33 @@
     <script>
         $(document).ready(function() {
             let year_id = $("#year_id");
+            let to_year_id = $("#year_id2")
             let month_id = $("#month_id");
+            let to_month_id = $("#month_id2")
             let day_id = $("#day_id");
+            let to_day_id = $("#day_id2")
 
 
             const monthsByYear = {
-                "2023": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                "2024": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                "2025": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+                "2023": ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+                    "October", "November", "December"
+                ],
+                "2024": ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+                    "October", "November", "December"
+                ],
+                "2025": ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+                    "October", "November", "December"
+                ]
             };
 
-            const dayOptions = Array.from({ length: 31 }, (_, i) => i + 1);
+            const dayOptions = Array.from({
+                length: 31
+            }, (_, i) => i + 1);
 
             // Initialize the month and day selects
             updateMonthSelect();
+            updateToMonthSelect();
+            updateToDaySelect();
             updateDaySelect();
 
             // Event listener for the year select
@@ -386,11 +449,64 @@
                 updateMonthSelect();
                 updateDaySelect();
             });
-
+            to_year_id.on("change", function() {
+                updateMonthSelect();
+                updateDaySelect();
+            });
             // Event listener for the month select
             month_id.on("change", function() {
                 updateDaySelect();
             });
+            to_month_id.on('change', function() {
+                updateDaySelect()
+            })
+
+            function updateToMonthSelect() {
+                const selectedYear = to_year_id.val();
+
+                // Clear previous options
+                to_month_id.empty();
+
+                // Add new month options based on the selected year
+                $.each(monthsByYear[selectedYear], function(index, month) {
+                    let selected = false;
+                    let selected_month_id = "{{ date('F') }}";
+                    if (month == selected_month_id) {
+                        selected = true;
+                    }
+                    to_month_id.append($("<option>", {
+                        value: month,
+                        text: month,
+                        selected: selected
+                    }));
+                });
+            }
+
+            function updateToDaySelect() {
+                const selectedMonth = to_month_id.val();
+
+                // Clear previous options
+                to_day_id.empty();
+
+                // Get the number of days in the selected month
+                const daysInMonth = new Date(to_year_id.val(), monthsByYear[to_year_id.val()].indexOf(
+                        selectedMonth) + 1,
+                    0).getDate();
+
+                // Add new day options based on the selected month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    let selected = false;
+                    let selected_day_id = "{{ date('d') }}";
+                    if (day == selected_day_id) {
+                        selected = true;
+                    }
+                    to_day_id.append($("<option>", {
+                        value: day,
+                        text: day,
+                        selected: selected
+                    }));
+                }
+            }
 
             function updateMonthSelect() {
                 const selectedYear = year_id.val();
@@ -402,7 +518,7 @@
                 $.each(monthsByYear[selectedYear], function(index, month) {
                     let selected = false;
                     let selected_month_id = "{{ date('F') }}";
-                    if(month == selected_month_id){
+                    if (month == selected_month_id) {
                         selected = true;
                     }
                     month_id.append($("<option>", {
@@ -420,13 +536,14 @@
                 day_id.empty();
 
                 // Get the number of days in the selected month
-                const daysInMonth = new Date(year_id.val(), monthsByYear[year_id.val()].indexOf(selectedMonth) + 1, 0).getDate();
+                const daysInMonth = new Date(year_id.val(), monthsByYear[year_id.val()].indexOf(selectedMonth) + 1,
+                    0).getDate();
 
                 // Add new day options based on the selected month
                 for (let day = 1; day <= daysInMonth; day++) {
                     let selected = false;
                     let selected_day_id = "{{ date('d') }}";
-                    if(day == selected_day_id){
+                    if (day == selected_day_id) {
                         selected = true;
                     }
                     day_id.append($("<option>", {
@@ -440,45 +557,452 @@
     </script>
 
     <script>
-        const WEEK = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+        var WEEK = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-        function updateTime() {
-            var now = new Date();
-            var timezone = -5;
-            var hours = now.getHours();
-            var minutes = now.getMinutes();
-            var seconds = now.getSeconds();
-            var month = now.getMonth();
-            var date = now.getDate();
-            var day = now.getDay();
-
-            /*var offset = (now.getTimezoneOffset() + (timezone * 60)) * 60 * 1000;
-
-            var timestamp = now.getTime() + offset,
-                seconds = Math.floor(timestamp / 1000) % 60,
-                minutes = Math.floor(timestamp / 1000 / 60) % 60,
-                hours   = Math.floor(timestamp / 1000 / 60 / 60);*/
-
-            document.getElementById("time").innerText =
-                zeroPadding(hours, 2) + ":" +
-                zeroPadding(minutes, 2) + ":" +
-                zeroPadding(seconds, 2);
-
-            document.getElementById("date").innerText =
-                now.getFullYear() + "-" +
-                zeroPadding(month + 1, 2) + "-" +
-                zeroPadding(date, 2) + " " +
-                WEEK[day];
-        }
-
-        updateTime();
-        setInterval(updateTime, 1000);
 
         function zeroPadding(num, digit) {
             return String(num).padStart(digit, '0');
         }
     </script>
+    <script>
+        // @TODO: remove static data
+        var data = [{
+                "Date": "01/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "99.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.91%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 15,
+                "Unplanned Maintenance Time (mins)": 20,
+                "Changeover+ Setup Time (mins)": 0,
+                "Other Factors (mins)": 50,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1710,
+                "Total Good Parts": 1699,
+                "Actual Availability (mins)": 1220,
+                "Actual Availability (%)": "84.72%",
+                "Actual Cycle Time (s)": 42.807,
+                "Actual Performance Rate": "98.11%",
+                "Actual QUALITY Rate": "99.36%",
+                "Actual OEE": "82.59%",
+                "Remarks": "Bosch/ENP trials - 50 min\n3rd station assembly cylinder nut loose - 20 min"
+            },
+            {
+                "Date": "02/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 60,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1230,
+                "Planned Availability (%)": "85.42%",
+                "Planned OEE": "82.03%",
+                "Planned Production (parts)": 1757,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 60,
+                "Unplanned Maintenance Time (mins)": 60,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1662,
+                "Total Good Parts": 1659,
+                "Actual Availability (mins)": 1170,
+                "Actual Availability (%)": "81.25%",
+                "Actual Cycle Time (s)": 42.238,
+                "Actual Performance Rate": "99.44%",
+                "Actual QUALITY Rate": "99.82%",
+                "Actual OEE": "80.65%",
+                "Remarks": "PU pad change & all stations alignment check - 60 min (planned activity)"
+            },
+            {
+                "Date": "03/09/23",
+                "Planned Availability (%)": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": null,
+                // (other data for the third row)
+            },
+            {
+                "Date": "04/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 60,
+                "Unplanned Maintenance Time (mins)": 60,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1785,
+                "Total Good Parts": 1780,
+                "Actual Availability (mins)": 1170,
+                "Actual Availability (%)": "81.25%",
+                "Actual Cycle Time (s)": 39.328,
+                "Actual Performance Rate": "106.79%",
+                "Actual QUALITY Rate": "99.72%",
+                "Actual OEE": "86.53%",
+                "Remarks": "Spring seat half assembly - 60 min"
+            },
+            {
+                "Date": "05/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1830,
+                "Total Good Parts": 1827,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 42.295,
+                "Actual Performance Rate": "99.30%",
+                "Actual QUALITY Rate": "99.84%",
+                "Actual OEE": "88.81%",
+                "Remarks": "No major issues"
+            },
+            {
+                "Date": "06/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1850,
+                "Total Good Parts": 1844,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 41.838,
+                "Actual Performance Rate": "100.39%",
+                "Actual QUALITY Rate": "99.68%",
+                "Actual OEE": "89.64%",
+                "Remarks": "No major issues"
+            },
+            {
+                "Date": "07/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 360,
+                "Unplanned Maintenance Time (mins)": 360,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1456,
+                "Total Good Parts": 1445,
+                "Actual Availability (mins)": 570,
+                "Actual Availability (%)": "39.58%",
+                "Actual Cycle Time (s)": 23.489,
+                "Actual Performance Rate": "178.81%",
+                "Actual QUALITY Rate": "99.24%",
+                "Actual OEE": "70.24%",
+                "Remarks": "1st station - Poka yoke sensor for filler piece malfunction"
+            }, {
+                "Date": "08/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1850,
+                "Total Good Parts": 1842,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 41.838,
+                "Actual Performance Rate": "100.39%",
+                "Actual QUALITY Rate": "99.57%",
+                "Actual OEE": "89.54%",
+                "Remarks": "No major issues"
+            }, {
+                "Date": "09/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 60,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1230,
+                "Planned Availability (%)": "85.42%",
+                "Planned OEE": "82.03%",
+                "Planned Production (parts)": 1757,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 60,
+                "Unplanned Maintenance Time (mins)": 60,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1735,
+                "Total Good Parts": 1720,
+                "Actual Availability (mins)": 1170,
+                "Actual Availability (%)": "81.25%",
+                "Actual Cycle Time (s)": 40.461,
+                "Actual Performance Rate": "103.80%",
+                "Actual QUALITY Rate": "99.14%",
+                "Actual OEE": "83.61%",
+                "Remarks": "PU pad change & all stations alignment check - 60 min (planned activity)"
+            },
+            {
+                "Date": "10/09/23",
+                "Planned Availability (%)": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": null,
+                // Add other fields for the fifth row based on your actual data
+            },
+            {
+                "Date": "11/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1740,
+                "Total Good Parts": 1734,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 44.483,
+                "Actual Performance Rate": "94.42%",
+                "Actual QUALITY Rate": "99.66%",
+                "Actual OEE": "84.29%",
+                "Remarks": "3rd station - Leakage NOK. PU pad change & recheck."
+            },
+            {
+                "Date": "12/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1850,
+                "Total Good Parts": 1845,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 41.838,
+                "Actual Performance Rate": "100.39%",
+                "Actual QUALITY Rate": "99.73%",
+                "Actual OEE": "89.69%",
+                "Remarks": "No major issues"
+            },
+            {
+                "Date": "13/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1850,
+                "Total Good Parts": 1841,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 41.838,
+                "Actual Performance Rate": "100.39%",
+                "Actual QUALITY Rate": "99.51%",
+                "Actual OEE": "89.49%",
+                "Remarks": "No major issues"
+            },
+            {
+                "Date": "14/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1820,
+                "Total Good Parts": 1808,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 42.527,
+                "Actual Performance Rate": "98.76%",
+                "Actual QUALITY Rate": "99.34%",
+                "Actual OEE": "87.89%",
+                "Remarks": "Trial parts assembly (Localization)"
+            },
+            {
+                "Date": "15/09/23",
+                "Total Production Hours": 24,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Changeover + Setup Time (mins)": 15,
+                "Quality Inspection Time (mins)": 0,
+                "Planned Performance Rate": "98.0%",
+                "Target Quality Rate": "98.0%",
+                "Machine Planned Cycle Time (s)": 42.00,
+                "Planned Availability (mins)": 1290,
+                "Planned Availability (%)": "89.58%",
+                "Planned OEE": "86.04%",
+                "Planned Production (parts)": 1843,
+                "Total Break Time (mins)": 135,
+                "Planned Maintenance Time (mins)": 0,
+                "Unplanned Maintenance Time (mins)": 0,
+                "Changeover+ Setup Time (mins)": 15,
+                "Other Factors (mins)": 0,
+                "Quality Inspection Time (mins)": 0,
+                "Total Parts Produced": 1840,
+                "Total Good Parts": 1824,
+                "Actual Availability (mins)": 1290,
+                "Actual Availability (%)": "89.58%",
+                "Actual Cycle Time (s)": 42.065,
+                "Actual Performance Rate": "99.84%",
+                "Actual QUALITY Rate": "99.13%",
+                "Actual OEE": "88.67%",
+                "Remarks": "No major issues"
+            }
+        ]
 
+        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+            "November", "December"
+        ]
+
+        function getMonthNumber(month) {
+            return months.indexOf(month)
+        }
+
+        function fetchData() {
+            let from_year = $("#year_id").val();
+            let from_month = $("#month_id").val();
+            let from_day = $("#day_id").val();
+
+            let to_year = $("#year_id2").val();
+            let to_month = $("#month_id2").val();
+            let to_day = $("#day_id2").val();
+
+            const startDate = new Date(from_year, getMonthNumber(from_month), from_day)
+            const endDate = new Date(to_year, getMonthNumber(to_month), to_day)
+
+            fetchDataByDateRange(startDate, endDate, data)
+        }
+
+        function fetchDataByDateRange(startDate, endDate, jsonData) {
+            const filteredData = jsonData.filter(row => {
+                const rowDate = new Date(row.Date);
+                return rowDate >= startDate && rowDate <= endDate;
+            });
+
+            console.log(filteredData);
+            return filteredData;
+        }
+    </script>
     <script>
         var gaugeOptions = {
             chart: {
@@ -491,8 +1015,7 @@
                 startAngle: -90,
                 endAngle: 90,
                 background: {
-                    backgroundColor:
-                        Highcharts.defaultOptions.legend.backgroundColor || '#EEE',
+                    backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || '#EEE',
                     innerRadius: '60%',
                     outerRadius: '100%',
                     shape: 'arc'
@@ -549,8 +1072,7 @@
                 name: 'OEE',
                 data: [{{ $oee }}],
                 dataLabels: {
-                    format:
-                        '<div style="text-align:center">' +
+                    format: '<div style="text-align:center">' +
                         '<span style="font-size:25px">{y}</span><br/>' +
                         '<span style="font-size:12px;opacity:0.4">%</span>' +
                         '</div>'
@@ -577,8 +1099,7 @@
                 name: 'Availability',
                 data: [{{ $availability }}],
                 dataLabels: {
-                    format:
-                        '<div style="text-align:center">' +
+                    format: '<div style="text-align:center">' +
                         '<span style="font-size:25px">{y}</span><br/>' +
                         '<span style="font-size:12px;opacity:0.4">%</span>' +
                         '</div>'
@@ -605,8 +1126,7 @@
                 name: 'Performance',
                 data: [{{ $performance }}],
                 dataLabels: {
-                    format:
-                        '<div style="text-align:center">' +
+                    format: '<div style="text-align:center">' +
                         '<span style="font-size:25px">{y}</span><br/>' +
                         '<span style="font-size:12px;opacity:0.4">%</span>' +
                         '</div>'
@@ -633,8 +1153,7 @@
                 name: 'Quality',
                 data: [{{ $quality }}],
                 dataLabels: {
-                    format:
-                        '<div style="text-align:center">' +
+                    format: '<div style="text-align:center">' +
                         '<span style="font-size:25px">{y}</span><br/>' +
                         '<span style="font-size:12px;opacity:0.4">%</span>' +
                         '</div>'
