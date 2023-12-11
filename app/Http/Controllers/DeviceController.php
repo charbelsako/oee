@@ -41,22 +41,22 @@ class DeviceController extends Controller
      */
     public function index(Request $request)
     {
-//        check_user_has_not_permission('device_index');
-        $countries = Country::query()->where('parent_id',0)->orderByDesc('name')->get();
-        $temps = DeviceTemp::query()->where('status',Constants::DEVICETEMPSTATUS['pending'])
+        //        check_user_has_not_permission('device_index');
+        $countries = Country::query()->where('parent_id', 0)->orderByDesc('name')->get();
+        $temps = DeviceTemp::query()->where('status', Constants::DEVICETEMPSTATUS['pending'])
             ->whereNull('device_id')->get();
 
         if (\request()->ajax()) {
             $per_page = $request->get('per_page', 10);
-            $items = Device::query()->when($request->filled('search'),function ($q) use ($request){
-                $search = '%'.$request->search.'%';
-                $q->where('project','like',$search)->orWhere('machine',$search)->orWhere('process',$search);
-            })->with(['country','city'])->orderByDesc('id')->paginate($per_page);
+            $items = Device::query()->when($request->filled('search'), function ($q) use ($request) {
+                $search = '%' . $request->search . '%';
+                $q->where('project', 'like', $search)->orWhere('machine', $search)->orWhere('process', $search);
+            })->with(['country', 'city'])->orderByDesc('id')->paginate($per_page);
 
             $data['view_render'] = view('cms.devices.partials._table', compact('items'))->render();
             return response(['status' => true, 'data' => $data], 200);
         }
-        return view("cms.devices.index",compact('countries','temps'));
+        return view("cms.devices.index", compact('countries', 'temps'));
     }
 
     /**
@@ -64,29 +64,29 @@ class DeviceController extends Controller
      */
     public function store(DeviceRequest $request)
     {
-//        check_user_has_not_permission('device_create');
+        //        check_user_has_not_permission('device_create');
         $device = false;
-        $data = $request->only(['project','machine','process','version','country_id','city_id',
-                                'plus_millisecond','produced_parts_per_hour','second_per_pulse','pieces_per_pulse']);
+        $data = $request->only(['project', 'machine', 'process', 'version', 'country_id', 'city_id',
+            'plus_millisecond', 'produced_parts_per_hour', 'second_per_pulse', 'pieces_per_pulse']);
         $temp = DeviceTemp::find($request->device_temp_id);
         if ($temp) {
-            $device_uuid = explode('-',$temp->prefix);
+            $device_uuid = explode('-', $temp->prefix);
             $first = @$device_uuid[0];
             $second = @$device_uuid[1];
             if ($first && $second) {
                 $data['timezone'] = Country::find($request->country_id)->timezone;
-                $data['uuid'] = generate_new_device_uuid_code($first,$second);
+                $data['uuid'] = generate_new_device_uuid_code($first, $second);
                 $device = Device::query()->create($data);
                 if ($device) {
                     $temp->update([
-                        'device_id'=>$device->id,
-                        'status'=>Constants::DEVICETEMPSTATUS['added'],
-                        'uuid'=>$device->uuid
+                        'device_id' => $device->id,
+                        'status' => Constants::DEVICETEMPSTATUS['added'],
+                        'uuid' => $device->uuid
                     ]);
                 }
             }
         }
-        $success = (bool)$device;
+        $success = (bool) $device;
         $message = $device ? 'device create successfully' : 'device saved unsuccessfully';
         $response['success'] = $success;
         $response['message'] = $message;
@@ -102,7 +102,7 @@ class DeviceController extends Controller
         $country_id = $request->country_id;
         $response['success'] = true;
         $response['message'] = 'get data successfully';
-        $response['data'] = Country::query()->where('parent_id',$country_id)->orderBy('name')->get();
+        $response['data'] = Country::query()->where('parent_id', $country_id)->orderBy('name')->get();
         return response()->json($response);
     }
 
@@ -113,7 +113,7 @@ class DeviceController extends Controller
     {
         $response['success'] = true;
         $response['message'] = 'get data successfully';
-        $response['data'] = DeviceTemp::query()->where('status',Constants::DEVICETEMPSTATUS['pending'])
+        $response['data'] = DeviceTemp::query()->where('status', Constants::DEVICETEMPSTATUS['pending'])
             ->whereNull('device_id')->get();
         return response()->json($response);
     }
@@ -123,10 +123,10 @@ class DeviceController extends Controller
      */
     public function edit($id)
     {
-//        check_user_has_not_permission('device_edit');
+        //        check_user_has_not_permission('device_edit');
         $item = Device::find($id);
-        $response['success'] = (bool)$item;
-        $response['message'] = $item?'get data successfully':'unsuccessfully';
+        $response['success'] = (bool) $item;
+        $response['message'] = $item ? 'get data successfully' : 'unsuccessfully';
         $response['data'] = $item;
         return response()->json($response);
     }
@@ -134,9 +134,9 @@ class DeviceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request,$id)
+    public function show(Request $request, $id)
     {
-//        check_user_has_not_permission('device_show');
+        //        check_user_has_not_permission('device_show');
         $device = Device::find($id);
 
         $is_live = true;
@@ -196,7 +196,7 @@ class DeviceController extends Controller
         $shift_start = strtotime($shift_start);
         $now = strtotime($now);
         $shift_end = strtotime($shift_end) + $plus_millisecond;
-        $time = (double)($shift_end - $shift_start);
+        $time = (double) ($shift_end - $shift_start);
 
         if (!$request->filled('shift_work')) {
             $shift_end = $now;
@@ -204,55 +204,55 @@ class DeviceController extends Controller
         }
 
         $ok_parts = Product::query()
-            ->where('device_id',$id)
-            ->where('unix_at','>=',$shift_start)
-            ->where('unix_at','<=',$shift_end)
-            ->where('is_ok',1)
-            ->where('start',0)
-            ->where('pause',1)
-            ->where('inspection',1)
-            ->where('breakdown',1)
+            ->where('device_id', $id)
+            ->where('unix_at', '>=', $shift_start)
+            ->where('unix_at', '<=', $shift_end)
+            ->where('is_ok', 1)
+            ->where('start', 0)
+            ->where('pause', 1)
+            ->where('inspection', 1)
+            ->where('breakdown', 1)
             ->sum('value');
 
         $nok_parts = Product::query()
-            ->where('device_id',$id)
-            ->where('unix_at','>=',$shift_start)
-            ->where('unix_at','<=',$shift_end)
-            ->where('is_ok',0)
-            ->where('start',0)
-            ->where('pause',1)
-            ->where('inspection',1)
-            ->where('breakdown',1)
+            ->where('device_id', $id)
+            ->where('unix_at', '>=', $shift_start)
+            ->where('unix_at', '<=', $shift_end)
+            ->where('is_ok', 0)
+            ->where('start', 0)
+            ->where('pause', 1)
+            ->where('inspection', 1)
+            ->where('breakdown', 1)
             ->sum('value');
 
         $pause_time = ButtonStatus::query()
-            ->where('device_id',$id)
-            ->where('unix_at','>=',$shift_start)
-            ->where('unix_at','<=',$shift_end)
-            ->where('start',1)
-            ->where('pause',0)
-            ->where('inspection',1)
-            ->where('breakdown',1)
+            ->where('device_id', $id)
+            ->where('unix_at', '>=', $shift_start)
+            ->where('unix_at', '<=', $shift_end)
+            ->where('start', 1)
+            ->where('pause', 0)
+            ->where('inspection', 1)
+            ->where('breakdown', 1)
             ->count() * $second_per_pulse;
 
         $inspection_time = ButtonStatus::query()
-            ->where('device_id',$id)
-            ->where('unix_at','>=',$shift_start)
-            ->where('unix_at','<=',$shift_end)
-            ->where('start',1)
-            ->where('pause',1)
-            ->where('inspection',0)
-            ->where('breakdown',1)
+            ->where('device_id', $id)
+            ->where('unix_at', '>=', $shift_start)
+            ->where('unix_at', '<=', $shift_end)
+            ->where('start', 1)
+            ->where('pause', 1)
+            ->where('inspection', 0)
+            ->where('breakdown', 1)
             ->count() * $second_per_pulse;
 
         $breakdown_time = ButtonStatus::query()
-            ->where('device_id',$id)
-            ->where('unix_at','>=',$shift_start)
-            ->where('unix_at','<=',$shift_end)
-            ->where('start',1)
-            ->where('pause',1)
-            ->where('inspection',1)
-            ->where('breakdown',0)
+            ->where('device_id', $id)
+            ->where('unix_at', '>=', $shift_start)
+            ->where('unix_at', '<=', $shift_end)
+            ->where('start', 1)
+            ->where('pause', 1)
+            ->where('inspection', 1)
+            ->where('breakdown', 0)
             ->count() * $second_per_pulse;
 
 
@@ -264,10 +264,10 @@ class DeviceController extends Controller
         $total_parts = $ok_parts + $nok_parts;
         $actual_production = $total_parts;
         $total_break = $planned_break + $unplanned_break;
-        $quality = ($total_parts != 0 && $ok_parts != 0)?$ok_parts / $total_parts:0;
-        $availability = $time != 0?($time - $total_break) / $time:0;
-        $possible_production = $cycle_time != 0?($time - $total_break) / $cycle_time:0;
-        $performance = $possible_production != 0?$total_parts / $possible_production:0;
+        $quality = ($total_parts != 0 && $ok_parts != 0) ? $ok_parts / $total_parts : 0;
+        $availability = $time != 0 ? ($time - $total_break) / $time : 0;
+        $possible_production = $cycle_time != 0 ? ($time - $total_break) / $cycle_time : 0;
+        $performance = $possible_production != 0 ? $total_parts / $possible_production : 0;
         $oee = $availability + $performance + $quality;
 
         $data['item'] = $device;
@@ -279,13 +279,21 @@ class DeviceController extends Controller
         $data['unplanned_break'] = $unplanned_break;
         $data['planned_break'] = $planned_break;
         $data['shift_duration'] = $shift_duration;
-        $data['quality'] = round($quality,2);
-        $data['performance'] = round($performance,2);
-        $data['availability'] = round($availability,2);
-        $data['oee'] = round($oee,2);
+        $data['quality'] = round($quality, 2);
+        $data['performance'] = round($performance, 2);
+        $data['availability'] = round($availability, 2);
+        $data['oee'] = round($oee, 2);
         $data['is_live'] = $is_live;
 
-        return view("cms.devices.show",$data);
+        return view("cms.devices.show", $data);
+    }
+
+    public function showgraph(Request $request, $id)
+    {
+        $device = Device::find($id);
+        $data["item"] = $device;
+        // @TODO: no data returned right now
+        return view("cms.devices.showgraph", $data);
     }
 
     /**
@@ -293,18 +301,18 @@ class DeviceController extends Controller
      */
     public function update(DeviceRequest $request)
     {
-//        check_user_has_not_permission('device_edit');
+        //        check_user_has_not_permission('device_edit');
         $device = Device::find($request->device_id);
-        $data = $request->only(['project','machine','process','version','country_id','city_id',
-                                'plus_millisecond','produced_parts_per_hour','second_per_pulse','pieces_per_pulse']);
+        $data = $request->only(['project', 'machine', 'process', 'version', 'country_id', 'city_id',
+            'plus_millisecond', 'produced_parts_per_hour', 'second_per_pulse', 'pieces_per_pulse']);
 
         if ($request->filled('country_id')) {
             $data['timezone'] = Country::find($request->country_id)->timezone;
         }
 
         $device = $device->update($data);
-        $success = (bool)$device;
-        $message = $device?'device create successfully':'device saved unsuccessfully';
+        $success = (bool) $device;
+        $message = $device ? 'device create successfully' : 'device saved unsuccessfully';
         $response['success'] = $success;
         $response['message'] = $message;
         $response['data'] = [];
@@ -316,11 +324,11 @@ class DeviceController extends Controller
      */
     public function delete($id)
     {
-//        check_user_has_not_permission('device_delete');
+        //        check_user_has_not_permission('device_delete');
         $item = Device::find($id);
         $item = $item?->delete();
-        $success = (bool)$item;
-        $message = $item?'device deleted successfully':'device delete unsuccessfully';
+        $success = (bool) $item;
+        $message = $item ? 'device deleted successfully' : 'device delete unsuccessfully';
         $response['success'] = $success;
         $response['message'] = $message;
         $response['data'] = [];
