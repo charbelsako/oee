@@ -164,7 +164,7 @@
                                 <!-- Day options will be added dynamically here based on the month selection -->
                             </select>
                         </div>
-                        <div class="col-2">
+                        {{-- <div class="col-2">
                             <label for="shift_id" class="form-control">Shift:</label>
                             <select id="shift_id" class="form-control">
                                 <option {{ date('H:i') >= '6:00' && date('H:i') <= '14:00' ? 'selected' : '' }}
@@ -176,7 +176,7 @@
                                     value="1">
                                     22:00 - 6:00</option>
                             </select>
-                        </div>
+                        </div> --}}
                         {{-- <div class="col-2">
                             <label for="live_id" class="form-control">Is live:</label>
                             <select id="live_id" class="form-control">
@@ -208,7 +208,7 @@
                                 <!-- Day options will be added dynamically here based on the month selection -->
                             </select>
                         </div>
-                        <div class="col-2">
+                        {{-- <div class="col-2">
                             <label for="shift_id2" class="form-control">Shift:</label>
                             <select id="shift_id2" class="form-control">
                                 <option {{ date('H:i') >= '6:00' && date('H:i') <= '14:00' ? 'selected' : '' }}
@@ -220,7 +220,7 @@
                                     value="1">
                                     22:00 - 6:00</option>
                             </select>
-                        </div>
+                        </div> --}}
                         {{-- <div class="col-2">
                             <label for="live_id2" class="form-control">Is live:</label>
                             <select id="live_id2" class="form-control">
@@ -236,78 +236,76 @@
             </div>
         </div>
         <div class="row gy-5 g-xl-10 mt-3">
-            <div class="col-sm-6 mb-xl-10">
+            <div class="col-sm-12 mb-xl-10">
                 <div class="card h-lg-100">
                     <div class="card-header">
                         <div class="card-title">
                             <span class="fw-semibold h1 text-gray-400">OEE</span>
                         </div>
-                        <div class="card-toolbar">
-                            {{-- <div class="d-flex justify-content-end" data-kt-device-table-toolbar="base">
-                                <span class="fw-semibold badge badge-light-success fs-1">{{ $oee }}</span>
-                            </div> --}}
-                        </div>
+
                     </div>
                     <div class="card-body row">
                         <div class="m-0 col-12">
-                            <div id="container-oee" class="chart-container"></div>
+                            <canvas id="oeeChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 mb-xl-10">
+            <div class="col-sm-12 mb-xl-10">
                 <div class="card h-lg-100">
                     <div class="card-header">
                         <div class="card-title">
                             <span class="fw-semibold h1 text-gray-400">Availability</span>
                         </div>
-                        <div class="card-toolbar">
-                            {{-- <div class="d-flex justify-content-end" data-kt-device-table-toolbar="base">
-                                <span class="fw-semibold badge badge-light-success fs-1">{{ $availability }}</span>
-                            </div> --}}
-                        </div>
+
                     </div>
                     <div class="card-body row">
                         <div class="m-0 col-12">
-                            <div id="container-availability" class="chart-container"></div>
+                            <canvas id="availabilityChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 mb-xl-10">
+            <div class="col-sm-12 mb-xl-10">
                 <div class="card h-lg-100">
                     <div class="card-header">
                         <div class="card-title">
                             <span class="fw-semibold h1 text-gray-400">Performance</span>
                         </div>
-                        <div class="card-toolbar">
-                            {{-- <div class="d-flex justify-content-end" data-kt-device-table-toolbar="base">
-                                <span class="fw-semibold badge badge-light-success fs-1">{{ $performance }}</span>
-                            </div> --}}
-                        </div>
+
                     </div>
                     <div class="card-body row">
                         <div class="m-0 col-12">
-                            <div id="container-performance" class="chart-container"></div>
+                            <canvas id="performanceChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 mb-xl-10">
+            <div class="col-sm-12 mb-xl-10">
                 <div class="card h-lg-100">
                     <div class="card-header">
                         <div class="card-title">
                             <span class="fw-semibold h1 text-gray-400">Quality</span>
                         </div>
-                        <div class="card-toolbar">
-                            {{-- <div class="d-flex justify-content-end" data-kt-device-table-toolbar="base">
-                                <span class="fw-semibold badge badge-light-success fs-1">{{ $quality }}</span>
-                            </div> --}}
+
+                    </div>
+                    <div class="card-body row">
+                        <div class="m-0 col-12">
+                            <canvas id="qualityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 mb-xl-10">
+                <div class="card h-lg-100">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="fw-semibold h1 text-gray-400">Cycle Time</span>
                         </div>
                     </div>
                     <div class="card-body row">
                         <div class="m-0 col-12">
-                            <div id="container-quality" class="chart-container"></div>
+                            <canvas id="cycleChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -317,6 +315,14 @@
 @endsection
 
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" referrerpolicy="no-referrer">
+        < script src = "https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js"
+        integrity = "sha512-hVy4KxCKgnXi2ok7rlnlPma4JHXI1VPQeempoaclV1GwRHrDeaiuS1pI6DVldaj5oh6Opy2XJ2CTljQLPkaMrQ=="
+        crossorigin = "anonymous"
+        referrerpolicy = "no-referrer" >
+    </script>
+    </script>
     <script>
         $(document).ready(function() {
             let year_id = $("#year_id");
@@ -535,7 +541,7 @@
                 "Date": "03/09/23",
                 "Planned Availability (%)": "98.0%",
                 "Target Quality Rate": "98.0%",
-                "Machine Planned Cycle Time (s)": null,
+                "Machine Planned Cycle Time (s)": 35.3,
                 // (other data for the third row)
             },
             {
@@ -550,7 +556,7 @@
                 "Machine Planned Cycle Time (s)": 42.00,
                 "Planned Availability (mins)": 1290,
                 "Planned Availability (%)": "89.58%",
-                "Planned OEE": "86.04%",
+                "Planned OEE": "86.04",
                 "Planned Production (parts)": 1843,
                 "Total Break Time (mins)": 135,
                 "Planned Maintenance Time (mins)": 60,
@@ -565,7 +571,7 @@
                 "Actual Cycle Time (s)": 39.328,
                 "Actual Performance Rate": "106.79%",
                 "Actual QUALITY Rate": "99.72%",
-                "Actual OEE": "86.53%",
+                "Actual OEE": "86.53",
                 "Remarks": "Spring seat half assembly - 60 min"
             },
             {
@@ -580,7 +586,7 @@
                 "Machine Planned Cycle Time (s)": 42.00,
                 "Planned Availability (mins)": 1290,
                 "Planned Availability (%)": "89.58%",
-                "Planned OEE": "86.04%",
+                "Planned OEE": "86.04",
                 "Planned Production (parts)": 1843,
                 "Total Break Time (mins)": 135,
                 "Planned Maintenance Time (mins)": 0,
@@ -610,7 +616,7 @@
                 "Machine Planned Cycle Time (s)": 42.00,
                 "Planned Availability (mins)": 1290,
                 "Planned Availability (%)": "89.58%",
-                "Planned OEE": "86.04%",
+                "Planned OEE": "86.04",
                 "Planned Production (parts)": 1843,
                 "Total Break Time (mins)": 135,
                 "Planned Maintenance Time (mins)": 0,
@@ -640,7 +646,7 @@
                 "Machine Planned Cycle Time (s)": 42.00,
                 "Planned Availability (mins)": 1290,
                 "Planned Availability (%)": "89.58%",
-                "Planned OEE": "86.04%",
+                "Planned OEE": "86.04",
                 "Planned Production (parts)": 1843,
                 "Total Break Time (mins)": 135,
                 "Planned Maintenance Time (mins)": 360,
@@ -669,7 +675,7 @@
                 "Machine Planned Cycle Time (s)": 42.00,
                 "Planned Availability (mins)": 1290,
                 "Planned Availability (%)": "89.58%",
-                "Planned OEE": "86.04%",
+                "Planned OEE": "86.04",
                 "Planned Production (parts)": 1843,
                 "Total Break Time (mins)": 135,
                 "Planned Maintenance Time (mins)": 0,
@@ -680,11 +686,11 @@
                 "Total Parts Produced": 1850,
                 "Total Good Parts": 1842,
                 "Actual Availability (mins)": 1290,
-                "Actual Availability (%)": "89.58%",
+                "Actual Availability (%)": "89.58",
                 "Actual Cycle Time (s)": 41.838,
-                "Actual Performance Rate": "100.39%",
-                "Actual QUALITY Rate": "99.57%",
-                "Actual OEE": "89.54%",
+                "Actual Performance Rate": "100.39",
+                "Actual QUALITY Rate": "99.57",
+                "Actual OEE": "89.54",
                 "Remarks": "No major issues"
             }, {
                 "Date": "09/09/23",
@@ -698,7 +704,7 @@
                 "Machine Planned Cycle Time (s)": 42.00,
                 "Planned Availability (mins)": 1230,
                 "Planned Availability (%)": "85.42%",
-                "Planned OEE": "82.03%",
+                "Planned OEE": "82.03",
                 "Planned Production (parts)": 1757,
                 "Total Break Time (mins)": 135,
                 "Planned Maintenance Time (mins)": 60,
@@ -712,8 +718,8 @@
                 "Actual Availability (%)": "81.25%",
                 "Actual Cycle Time (s)": 40.461,
                 "Actual Performance Rate": "103.80%",
-                "Actual QUALITY Rate": "99.14%",
-                "Actual OEE": "83.61%",
+                "Actual QUALITY Rate": "99.14",
+                "Actual OEE": "83.61",
                 "Remarks": "PU pad change & all stations alignment check - 60 min (planned activity)"
             },
             {
@@ -721,7 +727,13 @@
                 "Total Production Hours": 24,
                 "Planned Availability (%)": "98.0",
                 "Target Quality Rate": "98.0",
-                "Machine Planned Cycle Time (s)": null,
+                "Machine Planned Cycle Time (s)": 42,
+                "Actual QUALITY Rate": "99.66",
+                "Planned OEE": "86.04",
+                "Actual OEE": "83.61",
+                "Actual Performance Rate": "94.42",
+                "Planned Performance Rate": "98.0",
+                "Actual Cycle Time (s)": 44.483,
                 // Add other fields for the fifth row based on your actual data
             },
             {
@@ -876,12 +888,13 @@
             }
         ]
 
-        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
-            "November", "December"
+        var months = [
+            "January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December"
         ]
 
         function getMonthNumber(month) {
-            return months.indexOf(month)
+            return months.indexOf(month) + 1
         }
 
         function fetchData() {
@@ -893,8 +906,8 @@
             let to_month = $("#month_id2").val();
             let to_day = $("#day_id2").val();
 
-            const startDate = new Date(from_year, getMonthNumber(from_month), from_day)
-            const endDate = new Date(to_year, getMonthNumber(to_month), to_day)
+            const startDate = moment(`${from_year}-${getMonthNumber(from_month)}-${from_day}`)
+            const endDate = moment(`${to_year}-${getMonthNumber(to_month)}-${to_day}`)
 
             const filteredData = fetchDataByDateRange(startDate, endDate, data)
             let actualAvailability = calcluateAvailability(filteredData)
@@ -903,23 +916,29 @@
             let plannedCycleTime = getPlannedCycleTime(filteredData)
             let plannedPerformance = getPlannedPerformance(filteredData)
             let actualPerformance = getActualPerformance(filteredData)
-            let actualOEE = getActualOEE(filteredData);
+            let actualOEE = getActualOEE(filteredData)
             let plannedOEE = getPlannedOEE(filteredData)
             let plannedQuality = getPlannedQuality(filteredData)
             let actualQuality = getActualQuality(filteredData)
 
-            console.log(actualQuality)
-            console.log(plannedQuality)
-            console.log(plannedOEE)
-            console.log(actualOEE)
-            console.log(actualPerformance)
-            console.log(plannedPerformance)
+            drawChart('cycleChart', actualCycleTime, plannedCycleTime, 'Actual Cycle Time', 'Planned Cycle Time')
+            drawChart('performanceChart', actualPerformance, plannedPerformance, 'Actual Performance',
+                'Planned Performance')
+            drawChart('qualityChart', actualQuality, plannedQuality, 'Actual Quality', 'PlannedQuality')
+            drawChart('availabilityChart', actualAvailability, plannedAvailability, 'Actual Availability',
+                'Planned Availability')
+            drawChart('oeeChart', actualOEE, plannedOEE, 'Actual OEE', 'Planned OEE')
+        }
+
+        function parseDateFromString(dateString) {
+            return moment(dateString, 'DD/MM/YYYY');
         }
 
         function fetchDataByDateRange(startDate, endDate, jsonData) {
             const filteredData = jsonData.filter(row => {
-                const rowDate = new Date(row.Date);
-                return rowDate >= startDate && rowDate <= endDate;
+                const rowDate = parseDateFromString(row.Date);
+                console.log(rowDate, 'Row Date')
+                return rowDate.isSameOrAfter(startDate) && rowDate.isSameOrBefore(endDate);
             });
 
             return filteredData;
@@ -929,8 +948,11 @@
             let cycleTime = []
             for (let i = 0; i < data.length; i++) {
                 let row = data[i];
-                let cycle = row["Machine Planned Cycle Time (s)"] || 1
-                cycleTime.push(cycle)
+                let cycle = row["Machine Planned Cycle Time (s)"] || 0
+                cycleTime.push({
+                    date: row.Date,
+                    value: cycle
+                })
             }
             return cycleTime
         }
@@ -941,9 +963,11 @@
                 let row = data[i];
                 let totalPartsProduced = row["Total Parts Produced"] || 1
                 let actualAvailability = row["Actual Availability (mins)"] || 0
-                console.log(totalPartsProduced, actualAvailability)
                 let time = (actualAvailability * 60) / totalPartsProduced;
-                cycleTime.push(time)
+                cycleTime.push({
+                    value: time,
+                    date: row.Date
+                })
             }
             return cycleTime
         }
@@ -960,7 +984,10 @@
                     plannedQualityInspectionTime;
                 let result = row["Total Production Hours"] * 60 - totalPlanned;
                 let percentage = (result / (row["Total Production Hours"] * 60)) * 100
-                plannedAvailability.push(percentage);
+                plannedAvailability.push({
+                    value: percentage,
+                    date: row.Date
+                });
             }
             return plannedAvailability;
         }
@@ -981,7 +1008,10 @@
                 let actualAvailabilityResult = (row["Total Production Hours"] * 60 - totalTimeOn) / (row[
                     "Total Production Hours"] * 60);
                 let percentage = actualAvailabilityResult * 100;
-                actualAvailability.push(+percentage.toFixed(2));
+                actualAvailability.push({
+                    value: +percentage.toFixed(2),
+                    date: row.Date
+                });
             }
             return actualAvailability;
         }
@@ -990,7 +1020,10 @@
             let actualPerformance = []
             for (let i = 0; i < data.length; i++) {
                 let row = data[i];
-                actualPerformance.push(+row["Actual Performance Rate"] || 0)
+                actualPerformance.push({
+                    value: +row["Actual Performance Rate"] || 0,
+                    date: row.Date
+                })
             }
             return actualPerformance
         }
@@ -999,7 +1032,10 @@
             let plannedPerformance = []
             for (let i = 0; i < data.length; i++) {
                 let row = data[i];
-                plannedPerformance.push(+row["Planned Performance Rate"] || 0)
+                plannedPerformance.push({
+                    date: row.Date,
+                    value: +row["Planned Performance Rate"] || 0
+                })
             }
             return plannedPerformance
         }
@@ -1008,7 +1044,10 @@
             let actualOEE = []
             for (let i = 0; i < data.length; i++) {
                 let row = data[i];
-                actualOEE.push(+row["Actual OEE"] || 0)
+                actualOEE.push({
+                    date: row.Date,
+                    value: +row["Actual OEE"] || 0
+                })
             }
             return actualOEE
         }
@@ -1017,7 +1056,10 @@
             let plannedOEE = []
             for (let i = 0; i < data.length; i++) {
                 let row = data[i];
-                plannedOEE.push(+row["Planned OEE"] || 0)
+                plannedOEE.push({
+                    date: row.Date,
+                    value: +row["Planned OEE"] || 0
+                })
             }
             return plannedOEE
         }
@@ -1026,7 +1068,10 @@
             let actualQuality = []
             for (let i = 0; i < data.length; i++) {
                 let row = data[i];
-                actualQuality.push(+row["Actual QUALITY Rate"] || 0)
+                actualQuality.push({
+                    date: row.Date,
+                    value: +row["Actual QUALITY Rate"] || 0
+                })
             }
             return actualQuality
         }
@@ -1035,9 +1080,36 @@
             let plannedQuality = []
             for (let i = 0; i < data.length; i++) {
                 let row = data[i];
-                plannedQuality.push(+row["Target Quality Rate"] || 0)
+                plannedQuality.push({
+                    date: row.Date,
+                    value: +row["Target Quality Rate"] || 0
+                })
             }
             return plannedQuality
+        }
+
+        function drawChart(id, data_actual, data_planned, label1, label2) {
+            const ctx = document.getElementById(id).getContext('2d');
+
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data_actual.map(entry => entry.date), // Use the date as labels
+                    datasets: [{
+                        label: label1,
+                        data: data_actual.map(entry => entry.value),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: true,
+                    }, {
+                        label: label2,
+                        data: data_planned.map(entry => entry.value),
+                        borderColor: 'rgba(0, 1, 192, 1)',
+                        borderWidth: 1,
+                        fill: false,
+                    }],
+                },
+            });
         }
     </script>
 @endsection
