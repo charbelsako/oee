@@ -150,6 +150,7 @@ class DeviceController extends Controller
 
         $plus_millisecond = $device->plus_millisecond; // add to device setting
         $produced_parts_per_hour = $device->produced_parts_per_hour; // add to device setting
+        Log::info($produced_parts_per_hour);
         $second_per_pulse = $device->second_per_pulse; // add to device setting
         $pieces_per_pulse = $device->pieces_per_pulse; // add to device setting
 
@@ -202,17 +203,17 @@ class DeviceController extends Controller
         // }
 
         $shift_start = strtotime($shift_start);
-        $shift_start = intval($shift_start) * 1000;
+        $shift_start_ms = intval($shift_start) * 1000;
         $now = strtotime($now);
         if ($is_night_shift) {
             $shift_end = strtotime($shift_end) + $plus_millisecond;
         } else {
             $shift_end = strtotime($shift_end);
         }
-        $shift_end = intval($shift_end) * 1000;
+        $shift_end_ms = intval($shift_end) * 1000;
 
-        $carbon_start = Carbon::createFromTimestampMs($shift_start, 'UTC');
-        $carbon_end = Carbon::createFromTimestampMs($shift_end, 'UTC');
+        $carbon_start = Carbon::createFromTimestampMs($shift_start_ms, 'UTC');
+        $carbon_end = Carbon::createFromTimestampMs($shift_end_ms, 'UTC');
         $shift_date_start = $carbon_start->format('Y-m-d\TH:i:s.u\Z');
         $shift_date_end = $carbon_end->format('Y-m-d\TH:i:s.u\Z');
 
@@ -270,13 +271,14 @@ class DeviceController extends Controller
         $shift_duration = Carbon::parse($time)->format('H:i');
         $planned_break = $pause_time + $inspection_time; // done(produced time + slow production)
         $unplanned_break = $breakdown_time; // done(produced time + slow production)
-        $target_production = (int) ($produced_parts_per_hour * $time);
+        $target_production = (int) ($produced_parts_per_hour * ($time / 3600));
         $total_parts = $ok_parts + $nok_parts;
         $actual_production = $total_parts;
         $total_break = $planned_break + $unplanned_break;
         $quality = ($total_parts != 0 && $ok_parts != 0) ? $ok_parts / $total_parts : 0;
         $availability = $time != 0 ? ($time - $total_break) / $time : 0;
-        $possible_production = (int) ($cycle_time != 0 ? ($time - $total_break) / $cycle_time : 0);
+        // @TODO this is wrong
+        $possible_production = (int) ($cycle_time != 0 ? (($time / 3600) - $total_break) / $cycle_time : 0);
         $performance = $possible_production != 0 ? $total_parts / $possible_production : 0;
         $oee = $availability + $performance + $quality;
 
@@ -289,9 +291,9 @@ class DeviceController extends Controller
         $data['unplanned_break'] = $unplanned_break;
         $data['planned_break'] = $planned_break;
         $data['shift_duration'] = $shift_duration;
-        $data['quality'] = round($quality, 2);
+        $data['quality'] = round($quality * 100, 2);
         $data['performance'] = round($performance, 2);
-        $data['availability'] = round($availability, 2);
+        $data['availability'] = round($availability * 100, 2);
         $data['oee'] = round($oee, 2);
         $data['is_live'] = $is_live;
 
