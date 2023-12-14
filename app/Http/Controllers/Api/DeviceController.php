@@ -118,13 +118,16 @@ class DeviceController extends Controller
                 $status_matches = find_pattern($notes, 'S');
 
                 $s_buttons = $status_matches[0];
-
-                $s_buttons = decbin($s_buttons);
+                Log::info($s_buttons);
 
                 $start = $s_buttons & 1;
+                Log::info("start: " . $start);
                 $pause = ($s_buttons >> 1) & 1;
+                Log::info("pause: " . $pause);
                 $inspection = ($s_buttons >> 2) & 1;
+                Log::info("inspection: " . $inspection);
                 $breakdown = ($s_buttons >> 3) & 1;
+                Log::info("breakdown: " . $breakdown);
 
                 $temperature_matches = find_pattern($notes, 'T');
                 $volt_matches = find_pattern($notes, 'V');
@@ -134,6 +137,7 @@ class DeviceController extends Controller
                 $ok_matches = find_pattern($notes, 'O');
                 $not_ok_matches = find_pattern($notes, 'N');
 
+                Log::info("breakdown" . $breakdown);
                 $point = Point::measurement('status_buttons');
                 $point->addField('start', $start);
                 $point->addField('pause', $pause);

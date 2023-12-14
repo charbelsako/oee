@@ -11,10 +11,17 @@ use App\Models\DeviceTemp;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Services\InfluxDBClientService;
+use Illuminate\Support\Facades\Log;
 
 class DeviceController extends Controller
 {
     private $data = null;
+    protected $influxDBClientService;
+    public function __construct(InfluxDBClientService $influxDBClientService)
+    {
+        $this->influxDBClientService = $influxDBClientService;
+    }
 
     public function getJson(Request $request)
     {
@@ -152,6 +159,8 @@ class DeviceController extends Controller
         $afternoon_shift_end = Carbon::parse('22:00')->format('H:i');
         $night_shift_start = Carbon::parse('22:00')->format('H:i');
         $night_shift_end = Carbon::parse('6:00')->format('H:i');
+
+        $is_night_shift = false;
         $now = Carbon::now()->addHours($device->timezone)->format('H:i');
         if ($morning_shift_start <= $now && $now < $morning_shift_end) {
             $shift_start = $morning_shift_start;
@@ -162,111 +171,112 @@ class DeviceController extends Controller
         } else {
             $shift_start = $night_shift_start;
             $shift_end = $night_shift_end;
+            $is_night_shift = true;
+            // @NOTE: WHY IS THIS HERE, this should add night shift to the next day
             $plus_millisecond = $plus_millisecond + 86400;
         }
 
-        $shift_start = strtotime($shift_start);
-        $shift_end = strtotime($shift_end) + $plus_millisecond;
-
-        $cycle_time = $produced_parts_per_hour * $pieces_per_pulse * 8; // add to config (seconds per pulse * pieces per pulse)
-        if ($request->filled('shift_work')) {
-            $shift_work = $request->shift_work;
-            $shift_year = $request->shift_year;
-            $shift_month = $request->shift_month;
-            $shift_day = $request->shift_day;
-            if ($shift_work == 1) {
-                $shift_date_start = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 06:00';
-                $shift_date_end = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 14:00';
-                $shift_start = Carbon::parse($shift_date_start)->format('Y-m-d H:i');
-                $shift_end = Carbon::parse($shift_date_end)->format('Y-m-d H:i');
-            } elseif ($shift_work == 2) {
-                $shift_date_start = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 14:00';
-                $shift_date_end = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 22:00';
-                $shift_start = Carbon::parse($shift_date_start)->format('Y-m-d H:i');
-                $shift_end = Carbon::parse($shift_date_end)->format('Y-m-d H:i');
-            } else {
-                $shift_date_start = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 22:00';
-                $shift_date_end = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 06:00';
-                $shift_start = Carbon::parse($shift_date_start)->format('Y-m-d H:i');
-                $shift_end = Carbon::parse($shift_date_end)->format('Y-m-d H:i');
-                $plus_millisecond = $plus_millisecond + 86400;
-            }
-        }
+        $cycle_time = $second_per_pulse * $pieces_per_pulse; // add to config (seconds per pulse * pieces per pulse)
+        // if ($request->filled('shift_work')) {
+        //     $shift_work = $request->shift_work;
+        //     $shift_year = $request->shift_year;
+        //     $shift_month = $request->shift_month;
+        //     $shift_day = $request->shift_day;
+        //     if ($shift_work == 1) {
+        //         $shift_date_start = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 06:00';
+        //         $shift_date_end = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 14:00';
+        //         $shift_start = Carbon::parse($shift_date_start)->format('Y-m-d H:i');
+        //         $shift_end = Carbon::parse($shift_date_end)->format('Y-m-d H:i');
+        //     } elseif ($shift_work == 2) {
+        //         $shift_date_start = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 14:00';
+        //         $shift_date_end = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 22:00';
+        //         $shift_start = Carbon::parse($shift_date_start)->format('Y-m-d H:i');
+        //         $shift_end = Carbon::parse($shift_date_end)->format('Y-m-d H:i');
+        //     } else {
+        //         $shift_date_start = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 22:00';
+        //         $shift_date_end = $shift_year . '-' . $shift_month . '-' . $shift_day . ' 06:00';
+        //         $shift_start = Carbon::parse($shift_date_start)->format('Y-m-d H:i');
+        //         $shift_end = Carbon::parse($shift_date_end)->format('Y-m-d H:i');
+        //         $plus_millisecond = $plus_millisecond + 86400;
+        //     }
+        // }
 
         $shift_start = strtotime($shift_start);
+        $shift_start = intval($shift_start) * 1000;
         $now = strtotime($now);
-        $shift_end = strtotime($shift_end) + $plus_millisecond;
+        if ($is_night_shift) {
+            $shift_end = strtotime($shift_end) + $plus_millisecond;
+        } else {
+            $shift_end = strtotime($shift_end);
+        }
+        $shift_end = intval($shift_end) * 1000;
+
+        $carbon_start = Carbon::createFromTimestampMs($shift_start, 'UTC');
+        $carbon_end = Carbon::createFromTimestampMs($shift_end, 'UTC');
+        $shift_date_start = $carbon_start->format('Y-m-d\TH:i:s.u\Z');
+        $shift_date_end = $carbon_end->format('Y-m-d\TH:i:s.u\Z');
+
         $time = (double) ($shift_end - $shift_start);
+        Log::info("Time " . $time);
 
         if (!$request->filled('shift_work')) {
             $shift_end = $now;
             $is_live = false;
         }
 
-        $ok_parts = Product::query()
-            ->where('device_id', $id)
-            ->where('unix_at', '>=', $shift_start)
-            ->where('unix_at', '<=', $shift_end)
-            ->where('is_ok', 1)
-            ->where('start', 0)
-            ->where('pause', 1)
-            ->where('inspection', 1)
-            ->where('breakdown', 1)
-            ->sum('value');
+        // Log::info($shift_date_end);
+        // Log::info($shift_date_start);
+        $query = "from(bucket: \"oee_test\")
+        |> range(start: $shift_date_start, stop: $shift_date_end)
+        |> filter(fn: (r) => r._measurement == \"ok_products\" and r.box_number == \"$device->uuid\")";
+        $ok_parts_data = $this->influxDBClientService->queryData($query);
 
-        $nok_parts = Product::query()
-            ->where('device_id', $id)
-            ->where('unix_at', '>=', $shift_start)
-            ->where('unix_at', '<=', $shift_end)
-            ->where('is_ok', 0)
-            ->where('start', 0)
-            ->where('pause', 1)
-            ->where('inspection', 1)
-            ->where('breakdown', 1)
-            ->sum('value');
+        $ok_parts = 0;
+        foreach ($ok_parts_data as $timestamp => $values) {
+            if (isset($values['ok_products'])) {
+                $ok_parts += $values['ok_products'];
+            }
+        }
 
-        $pause_time = ButtonStatus::query()
-            ->where('device_id', $id)
-            ->where('unix_at', '>=', $shift_start)
-            ->where('unix_at', '<=', $shift_end)
-            ->where('start', 1)
-            ->where('pause', 0)
-            ->where('inspection', 1)
-            ->where('breakdown', 1)
-            ->count() * $second_per_pulse;
+        $query = "from(bucket: \"oee_test\") |> range(start: $shift_date_start, stop: $shift_date_end) |> filter(fn: (r) => r._measurement == \"not_ok_products\" and r.box_number == \"$device->uuid\")";
+        $nok_parts_data = $this->influxDBClientService->queryData($query);
 
-        $inspection_time = ButtonStatus::query()
-            ->where('device_id', $id)
-            ->where('unix_at', '>=', $shift_start)
-            ->where('unix_at', '<=', $shift_end)
-            ->where('start', 1)
-            ->where('pause', 1)
-            ->where('inspection', 0)
-            ->where('breakdown', 1)
-            ->count() * $second_per_pulse;
+        $nok_parts = 0;
+        foreach ($nok_parts_data as $timestamp => $values) {
+            if (isset($values['not_ok_products'])) {
+                $nok_parts += $values['not_ok_products'];
+            }
+        }
 
-        $breakdown_time = ButtonStatus::query()
-            ->where('device_id', $id)
-            ->where('unix_at', '>=', $shift_start)
-            ->where('unix_at', '<=', $shift_end)
-            ->where('start', 1)
-            ->where('pause', 1)
-            ->where('inspection', 1)
-            ->where('breakdown', 0)
-            ->count() * $second_per_pulse;
+        $query = "from(bucket: \"oee_test\")
+        |> range(start: $shift_date_start, stop: $shift_date_end)
+        |> filter(fn: (r) => r._measurement == \"status_buttons\" and r.box_number == \"$device->uuid\")";
+        $button_data = $this->influxDBClientService->queryData($query);
 
 
+        $pause_time_count = 0;
+        $inspection_time_count = 0;
+        $breakdown_time_count = 0;
+        foreach ($button_data as $timestamp => $values) {
+            $inspection_time_count += $values['inspection'];
+            $pause_time_count += $values['pause'];
+            $breakdown_time_count += $values['breakdown'];
+        }
+
+        $pause_time = $pause_time_count * $second_per_pulse;
+        $inspection_time = $inspection_time_count * $second_per_pulse;
+        $breakdown_time = $breakdown_time_count * $second_per_pulse;
 
         $shift_duration = Carbon::parse($time)->format('H:i');
         $planned_break = $pause_time + $inspection_time; // done(produced time + slow production)
         $unplanned_break = $breakdown_time; // done(produced time + slow production)
-        $target_production = $produced_parts_per_hour * $time;
+        $target_production = (int) ($produced_parts_per_hour * $time);
         $total_parts = $ok_parts + $nok_parts;
         $actual_production = $total_parts;
         $total_break = $planned_break + $unplanned_break;
         $quality = ($total_parts != 0 && $ok_parts != 0) ? $ok_parts / $total_parts : 0;
         $availability = $time != 0 ? ($time - $total_break) / $time : 0;
-        $possible_production = $cycle_time != 0 ? ($time - $total_break) / $cycle_time : 0;
+        $possible_production = (int) ($cycle_time != 0 ? ($time - $total_break) / $cycle_time : 0);
         $performance = $possible_production != 0 ? $total_parts / $possible_production : 0;
         $oee = $availability + $performance + $quality;
 
@@ -285,6 +295,7 @@ class DeviceController extends Controller
         $data['oee'] = round($oee, 2);
         $data['is_live'] = $is_live;
 
+        Log::info($availability);
         return view("cms.devices.show", $data);
     }
 
