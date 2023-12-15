@@ -195,6 +195,15 @@
                 </p>
             </div>
         </div>
+
+        <div class="card">
+            <div class="col-12 card-body">
+                {{-- <p class="fw-semibold h1 text-gray-400 text-center">
+
+                    </p> --}}
+                <a href="/devices/showgraph/{{ $item->id }}">Go to analytics report</a>
+            </div>
+        </div>
         <div class="row gy-5 g-xl-10 mt-3">
             <div class="col-sm-6 mb-xl-10">
                 <div class="card h-lg-100">
