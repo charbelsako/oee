@@ -132,6 +132,10 @@
                             <span class="font-bold h1">Process: </span>
                             <span class="h3">{{ $item->process }}</span>
                         </div>
+                        <div class="col-12">
+                            <span class="font-bold h1">UUID: </span>
+                            <span class="h3">{{ $item->uuid }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
