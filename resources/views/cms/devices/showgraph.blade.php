@@ -937,7 +937,6 @@
         function fetchDataByDateRange(startDate, endDate, jsonData) {
             const filteredData = jsonData.filter(row => {
                 const rowDate = parseDateFromString(row.Date);
-                console.log(rowDate, 'Row Date')
                 return rowDate.isSameOrAfter(startDate) && rowDate.isSameOrBefore(endDate);
             });
 
@@ -1090,7 +1089,10 @@
 
         function drawChart(id, data_actual, data_planned, label1, label2) {
             const ctx = document.getElementById(id).getContext('2d');
-
+            var existingChart = Chart.getChart(ctx);
+            if (existingChart) {
+                existingChart.destroy(); // Destroy the existing chart
+            }
             var myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {

@@ -227,8 +227,8 @@ class DeviceController extends Controller
             // Log::info($shift_date_end);
             // Log::info($shift_date_start);
             $query = "from(bucket: \"oee_test\")
-        |> range(start: $shift_date_start, stop: $shift_date_end)
-        |> filter(fn: (r) => r._measurement == \"ok_products\" and r.box_number == \"$device->uuid\")";
+            |> range(start: $shift_date_start, stop: $shift_date_end)
+            |> filter(fn: (r) => r._measurement == \"ok_products\" and r.box_number == \"$device->uuid\")";
             $ok_parts_data = $this->influxDBClientService->queryData($query);
 
             $ok_parts = 0;
@@ -249,8 +249,8 @@ class DeviceController extends Controller
             }
 
             $query = "from(bucket: \"oee_test\")
-        |> range(start: $shift_date_start, stop: $shift_date_end)
-        |> filter(fn: (r) => r._measurement == \"status_buttons\" and r.box_number == \"$device->uuid\")";
+            |> range(start: $shift_date_start, stop: $shift_date_end)
+            |> filter(fn: (r) => r._measurement == \"status_buttons\" and r.box_number == \"$device->uuid\")";
             $button_data = $this->influxDBClientService->queryData($query);
 
 
