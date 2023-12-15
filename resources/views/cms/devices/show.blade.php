@@ -188,6 +188,13 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <p class="fw-semibold h1 text-gray-400 text-center">
+                    {{ $no_data ? 'No data' : '' }}
+                </p>
+            </div>
+        </div>
         <div class="row gy-5 g-xl-10 mt-3">
             <div class="col-sm-6 mb-xl-10">
                 <div class="card h-lg-100">
