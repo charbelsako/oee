@@ -136,6 +136,9 @@
                 </div>
             </div>
         </div>
+        <div class="card d-none" id="timeMachine">
+            <p class="alert alert-danger">Sir, this is an oee box not a time machine</p>
+        </div>
         <div class="card my-3">
             <div class="card-header border-0 py-6">
                 <div class="row col-12">
@@ -937,7 +940,12 @@
         function fetchDataByDateRange(startDate, endDate, jsonData) {
             const filteredData = jsonData.filter(row => {
                 const rowDate = parseDateFromString(row.Date);
-                return rowDate.isSameOrAfter(startDate) && rowDate.isSameOrBefore(endDate);
+                if (endDate.isBefore(startDate)) {
+                    showAlert();
+                } else {
+                    hideAlert();
+                }
+                return rowDate.isSameOrAfter(startDate, 'day') && rowDate.isSameOrBefore(endDate, 'day');
             });
 
             return filteredData;
@@ -1101,17 +1109,35 @@
                         label: label1,
                         data: data_actual.map(entry => entry.value),
                         borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1,
                         fill: true,
                     }, {
                         label: label2,
                         data: data_planned.map(entry => entry.value),
                         borderColor: 'rgba(0, 1, 192, 1)',
+                        backgroundColor: 'rgba(0, 1, 192, 1)',
                         borderWidth: 1,
                         fill: false,
                     }],
                 },
             });
+        }
+
+        function showAlert() {
+            // Get the alert element
+            var myAlert = document.getElementById('timeMachine');
+
+            // Remove the 'd-none' class to show the alert
+            myAlert.classList.remove('d-none');
+        }
+
+        function hideAlert() {
+            // Get the alert element
+            var myAlert = document.getElementById('timeMachine');
+
+            // Remove the 'd-none' class to show the alert
+            myAlert.classList.add('d-none');
         }
     </script>
 @endsection

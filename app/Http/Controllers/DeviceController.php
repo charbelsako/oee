@@ -162,8 +162,9 @@ class DeviceController extends Controller
             $night_shift_end = Carbon::parse('6:00')->format('H:i');
 
             $is_night_shift = false;
-            $now = Carbon::now()->addHours($device->timezone)->format('H:i');
-            if ($morning_shift_start <= $now && $now < $morning_shift_end) {
+            $now = Carbon::now()->tz('UTC')->addHours($device->timezone)->format('H:i');
+            if ($morning_shift_start <= $now && $now <= $morning_shift_end) {
+                Log::info("morning shift");
                 $shift_start = $morning_shift_start;
                 $shift_end = $morning_shift_end;
             } elseif ($afternoon_shift_start <= $now && $now < $afternoon_shift_end) {
@@ -214,18 +215,21 @@ class DeviceController extends Controller
 
             $carbon_start = Carbon::createFromTimestampMs($shift_start_ms, 'UTC');
             $carbon_end = Carbon::createFromTimestampMs($shift_end_ms, 'UTC');
+            Log::info('Start ' . $carbon_start);
+            Log::info('End ' . $carbon_end);
             $shift_date_start = $carbon_start->format('Y-m-d\TH:i:s.u\Z');
             $shift_date_end = $carbon_end->format('Y-m-d\TH:i:s.u\Z');
 
             $time = (double) ($shift_end - $shift_start);
+            Log::info('time is ' . $time);
 
             if (!$request->filled('shift_work')) {
                 $shift_end = $now;
                 $is_live = false;
             }
 
-            // Log::info($shift_date_end);
-            // Log::info($shift_date_start);
+            Log::info($shift_date_end);
+            Log::info($shift_date_start);
             $query = "from(bucket: \"oee_test\")
             |> range(start: $shift_date_start, stop: $shift_date_end)
             |> filter(fn: (r) => r._measurement == \"ok_products\" and r.box_number == \"$device->uuid\")";
@@ -277,9 +281,12 @@ class DeviceController extends Controller
             $quality = ($total_parts != 0 && $ok_parts != 0) ? $ok_parts / $total_parts : 0;
             $availability = $time != 0 ? ($time - $total_break) / $time : 0;
             // @TODO this is wrong I think
-            $possible_production = (int) ($cycle_time != 0 ? (($time / 3600) - $total_break) / $cycle_time : 0);
+            $possible_production = (int) ($cycle_time != 0 ? ($time - $total_break) / $cycle_time : 0);
+            Log::info('possible production ' . $possible_production);
+            Log::info('Total Break ' . $total_break);
+            Log::info('cycle time ' . $cycle_time);
             $performance = $possible_production != 0 ? $total_parts / $possible_production : 0;
-            $oee = $availability + $performance + $quality;
+            $oee = $availability * $performance * $quality;
 
             $data['item'] = $device;
             $data['ok_parts'] = $ok_parts;
@@ -291,9 +298,9 @@ class DeviceController extends Controller
             $data['planned_break'] = $planned_break;
             $data['shift_duration'] = $shift_duration;
             $data['quality'] = round($quality * 100, 2);
-            $data['performance'] = round($performance, 2);
+            $data['performance'] = round($performance * 100, 2);
             $data['availability'] = round($availability * 100, 2);
-            $data['oee'] = round($oee, 2);
+            $data['oee'] = round($oee * 100, 2);
             $data['no_data'] = false;
             $data['is_live'] = $is_live;
 

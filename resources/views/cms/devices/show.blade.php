@@ -504,9 +504,10 @@
             // the value axis
             yAxis: {
                 stops: [
-                    [0.1, '#55BF3B'], // green
-                    [0.5, '#DDDF0D'], // yellow
-                    [0.9, '#DF5353'] // red
+                    [0.4, '#DF5353'], // red
+                    [0.7, '#DDDF0D'], // yellow
+                    [0.8, '#55BF3B'], // green
+                    [1, '#55BF3B'], // green
                 ],
                 lineWidth: 0,
                 tickWidth: 0,
